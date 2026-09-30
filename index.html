@@ -1,1498 +1,1353 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roza International - Global Paper, Polymer & Yarn Solutions</title>
+    <title>Roza International | Global Indenting Solutions - Paper, Polymer & Yarn</title>
     <meta name="description" content="Roza International - Global indenting & trading solutions for paper, polymer, yarn, ink, and industrial supplies since 2018. Connect with trusted manufacturers worldwide.">
-    <meta name="keywords" content="paper trading, polymer suppliers, yarn export, industrial supplies, global trade">
+    <meta name="keywords" content="paper trading, polymer suppliers, yarn export, industrial supplies, global trade, indenting bangladesh, duplex board, FBB ningbo">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" as="image" href="static/background.svg">
-    <link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" crossorigin>
-    
-    <!-- Favicon -->
+    <!-- Open Graph -->
+    <meta property="og:title" content="Roza International | Global Indenting & Trade Solutions">
+    <meta property="og:description" content="Connecting world-class manufacturers in paper, polymer, yarn, and chemicals with industrial buyers worldwide since 2018.">
+    <meta property="og:url" content="https://rozainternational.com">
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- AOS (Animate on Scroll) -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
-    <!-- Feather Icons -->
-    <script src="https://unpkg.com/feather-icons"></script>
-    
-    <!-- Swiper for testimonials -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-    
-    <!-- Vanta.js for background effects -->
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
-    
-    <!-- Google Fonts -->
+
+    <!-- Fonts: Plus Jakarta Sans for clean, modern corporate legibility -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Tailwind CSS with CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#051321',
+                            900: '#071A2E',
+                            800: '#0A2540',
+                            700: '#0E3359',
+                        },
+                        brand: {
+                            blue: '#00508F',
+                            blueHover: '#003D6E',
+                            gold: '#C5A059',
+                            goldLight: '#F5EEDB',
+                            surface: '#F8FAFC',
+                            card: '#FFFFFF',
+                            border: '#E2E8F0',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', '"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Roboto', sans-serif;
-            color: #1a1a1a;
-            background-color: #fefefe;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        h1, h2, h3, h4 {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-        }
-        
-        :root {
-            --primary: #00508F;
-            --primary-light: #4a7ca9;
-            --secondary: #c9a769;
-            --dark: #1a1a1a;
-            --light: #f9f9f7;
-            --gray: #666666;
-            --gray-light: #e5e5e5;
-        }
-        
-        .text-primary { color: var(--primary); }
-        .bg-primary { background-color: var(--primary); }
-        .text-secondary { color: var(--secondary); }
-        .bg-secondary { background-color: var(--secondary); }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-        
+        /* Proportional Base Scale */
         html {
-            scroll-behavior: smooth;
-            scroll-padding-top: 80px;
+            font-size: 15px;
         }
-        
-        /* Modern Floating Header Styles */
-        nav {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transform: translateY(0);
-        }
-        
-        nav.scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            border-bottom: 1px solid rgba(0, 80, 143, 0.1);
-            transform: translateY(0);
-        }
-        
-        nav.scrolled-up {
-            transform: translateY(0);
-        }
-        
-        nav.hidden-header {
-            transform: translateY(-100%);
-        }
-        
-        .nav-link {
-            position: relative;
-            padding: 0.5rem 0;
-            color: #4a5568;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-link:hover {
-            color: #00508F;
-        }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #00508F, #c9a769);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-        
-        .nav-link:hover::after {
-            width: 100%;
-        }
-        
-        .cta-button {
-            background: linear-gradient(135deg, #00508F 0%, #003d6b 100%);
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 80, 143, 0.3);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-        
-        .cta-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #c9a769 0%, #b89446 100%);
-            z-index: -1;
-            transition: transform 0.5s ease;
-            transform: translateX(-100%);
-        }
-        
-        .cta-button:hover::before {
-            transform: translateX(0);
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 80, 143, 0.4);
+        @media (min-width: 1024px) {
+            html {
+                font-size: 16px;
+            }
         }
 
-        .hero-bg-blur {
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
-            background-color: rgba(255, 255, 255, 0.05);
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
-        
-        .logo-gradient {
-            background: linear-gradient(135deg, #00508F 0%, #c9a769 100%);
+
+        /* Fixed Navigation Header */
+        .site-header {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hero Background with Real Banner Image & Subtle Overlay */
+        .hero-section {
+            background-color: #071A2E;
+            background-image: 
+                linear-gradient(180deg, rgba(7, 26, 46, 0.88) 0%, rgba(10, 37, 64, 0.94) 100%),
+                url('static/herobn.webp');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #F3D27E 0%, #C5A059 60%, #E7C46E 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
-        
-        /* Modern button styles */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 32px;
-            font-weight: 500;
-            border-radius: 8px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-            font-size: 1rem;
+
+        /* Buttons */
+        .btn-gold {
+            background: linear-gradient(135deg, #C5A059 0%, #A88339 100%);
+            color: #071A2E;
+            font-weight: 700;
+            transition: all 0.25s ease;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 80, 143, 0.3);
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #D4AF67 0%, #B89246 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(197, 160, 89, 0.4);
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 80, 143, 0.4);
+
+        .btn-primary-blue {
+            background: linear-gradient(135deg, #00508F 0%, #003A68 100%);
+            color: #ffffff;
+            font-weight: 600;
+            transition: all 0.25s ease;
         }
-        
-        .btn-outline {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            background: transparent;
+        .btn-primary-blue:hover {
+            background: linear-gradient(135deg, #005FA8 0%, #00457C 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(0, 80, 143, 0.35);
         }
-        
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
+
+        /* Standardized Card Shadows */
+        .card-box {
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            transition: all 0.25s ease;
         }
-        
-        /* Modern card */
-        .card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .card-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px -6px rgba(10, 37, 64, 0.08), 0 4px 10px -2px rgba(10, 37, 64, 0.03);
+            border-color: #CBD5E1;
         }
-        
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-        }
-        
-        /* Gradient backgrounds */
-        .gradient-bg {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-        
-        .hero-gradient {
-            background: linear-gradient(135deg, var(--primary) 0%, #002D62 100%);
-        }
-        
-        /* Loading skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
-        /* Custom animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .float-animation {
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        /* Mobile menu animations */
-        .mobile-menu {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: top;
-        }
-        
-        .mobile-menu.active {
-            animation: slideDown 0.4s ease forwards;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Floating animation */
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-        
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        /* Glowing effect */
-        .glow {
-            position: relative;
-        }
-        
-        .glow::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #00508F, #c9a769, #00508F);
-            border-radius: inherit;
-            z-index: -1;
-            filter: blur(10px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .glow:hover::after {
-            opacity: 0.7;
-        }
-        
-        /* Loading bar */
-        .loading-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, #00508F, #c9a769);
-            z-index: 9999;
-            transition: width 0.3s ease;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--gray-light);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Responsive typography */
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            h2 { font-size: 2rem; }
-            h3 { font-size: 1.5rem; }
+
+        /* Subtle grid pattern */
+        .bg-grid-overlay {
+            background-size: 28px 28px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
         }
     </style>
 </head>
-<body class="overflow-x-hidden">
-    <!-- Loading Bar -->
-    <div class="loading-bar"></div>
+<body>
 
-    <!-- Loading Screen -->
-    <div id="loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center transition-opacity duration-300">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- Modern Floating Navigation -->
-    <nav class="fixed w-full z-50" id="mainNav">
-        <div class="container mx-auto px-6 py-4">
+    <!-- Professional Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 site-header h-16 sm:h-[70px] flex items-center shadow-sm">
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between">
-                <!-- Logo with floating effect -->
-                <div class="flex items-center">
-                    <a href="https://rozainternational.com" class="flex items-center space-x-3 floating">
-                        <img src="static/logo.png" alt="Roza International Logo" class="h-12 w-auto glow">
-                        <div class="hidden lg:block">
-                            <div class="text-xs text-gray-500 font-medium">Global Trade Solutions</div>
-                        </div>
+                
+                <!-- Company Brand Logo (Smart, Compact, Refined) -->
+                <a href="#home" class="flex items-center space-x-2.5 group py-1 focus:outline-none">
+                    <img src="static/logo.png" 
+                         alt="Roza International" 
+                         class="h-7 sm:h-8 w-auto object-contain transition-all duration-200 group-hover:opacity-90">
+                    <span class="hidden sm:inline-block h-3.5 w-px bg-gray-300/80"></span>
+                    <span class="hidden sm:inline-block text-[10.5px] font-bold text-gray-500 tracking-wider uppercase">Global Trade</span>
+                </a>
+
+                <!-- Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-6 text-[13.5px] font-semibold text-gray-700">
+                    <a href="#home" class="hover:text-brand-blue transition py-1">Home</a>
+                    <a href="#about" class="hover:text-brand-blue transition py-1">About</a>
+                    <a href="#products" class="hover:text-brand-blue transition py-1">Products</a>
+                    <a href="#process" class="hover:text-brand-blue transition py-1">Process</a>
+                    <a href="#partners" class="hover:text-brand-blue transition py-1">Partners</a>
+                    <a href="#gallery" class="hover:text-brand-blue transition py-1">Gallery</a>
+                    <a href="#testimonials" class="hover:text-brand-blue transition py-1">Testimonials</a>
+                    <a href="#contact" class="hover:text-brand-blue transition py-1">Contact</a>
+                </nav>
+
+                <!-- Actions: Direct WhatsApp & RFQ Button -->
+                <div class="hidden sm:flex items-center space-x-2.5">
+                    <a href="https://wa.me/8801970026390?text=Hello%20Roza%20International,%20I%20would%20like%20to%20inquire%20about%20indenting%20pricing." 
+                       target="_blank" 
+                       class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-emerald-500/30 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-semibold text-xs transition">
+                        <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                        <span>WhatsApp</span>
+                    </a>
+
+                    <a href="#contact" 
+                       class="btn-primary-blue px-4 py-2 rounded-lg text-xs font-semibold tracking-wide flex items-center space-x-1.5 shadow-sm">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-brand-gold"></i>
+                        <span>Get Quote</span>
                     </a>
                 </div>
-                
-                <!-- Desktop Navigation Menu -->
-                <div class="hidden lg:flex items-center space-x-8">
-                    <a href="#home" class="nav-link">Home</a>
-                    <a href="#about" class="nav-link">About</a>
-                    <a href="#gallery" class="nav-link">Gallery</a>
-                    <a href="#products" class="nav-link">Products</a>
-                    <a href="#partners" class="nav-link">Partners</a>
-                    <a href="#contact" class="cta-button">Contact Us</a>
-                </div>
-                
-                <!-- Mobile menu button with animation -->
-                <div class="lg:hidden">
-                    <button class="mobile-menu-button p-2 rounded-lg hover:bg-gray-100 transition duration-300 relative group">
-                        <div class="w-6 h-5 flex flex-col justify-between items-center">
-                            <span class="block w-6 h-0.5 bg-gray-700 group-hover:bg-primary transition duration-300 transform group-hover:translate-y-1.5 group-hover:rotate-45"></span>
-                            <span class="block w-6 h-0.5 bg-gray-700 group-hover:bg-primary transition duration-300 group-hover:opacity-0"></span>
-                            <span class="block w-6 h-0.5 bg-gray-700 group-hover:bg-primary transition duration-300 transform group-hover:-translate-y-1.5 group-hover:-rotate-45"></span>
-                        </div>
+
+                <!-- Mobile Hamburger Button -->
+                <div class="lg:hidden flex items-center">
+                    <button id="mobileNavToggle" 
+                            aria-label="Toggle Navigation Menu" 
+                            class="p-2 rounded-lg text-gray-700 hover:bg-gray-100 focus:outline-none">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
-            
-            <!-- Mobile Navigation Menu -->
-            <div class="mobile-menu lg:hidden hidden mt-4 bg-white rounded-xl shadow-2xl p-6 border border-gray-100">
-                <div class="flex flex-col space-y-6">
-                    <a href="#home" class="nav-link text-lg font-medium py-2 border-b border-gray-100">Home</a>
-                    <a href="#about" class="nav-link text-lg font-medium py-2 border-b border-gray-100">About</a>
-                    <a href="#gallery" class="nav-link text-lg font-medium py-2 border-b border-gray-100">Gallery</a>
-                    <a href="#products" class="nav-link text-lg font-medium py-2 border-b border-gray-100">Products</a>
-                    <a href="#partners" class="nav-link text-lg font-medium py-2 border-b border-gray-100">Partners</a>
-                    <a href="#contact" class="cta-button text-center mt-4">Contact Us</a>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden fixed top-16 sm:top-[70px] left-0 right-0 bg-white border-b border-gray-200 shadow-xl px-5 py-5">
+            <div class="flex flex-col space-y-3 text-sm font-semibold text-gray-800">
+                <a href="#home" class="mobile-nav-item py-1.5 border-b border-gray-100">Home</a>
+                <a href="#about" class="mobile-nav-item py-1.5 border-b border-gray-100">About Us</a>
+                <a href="#products" class="mobile-nav-item py-1.5 border-b border-gray-100">Product Catalog</a>
+                <a href="#process" class="mobile-nav-item py-1.5 border-b border-gray-100">Indenting Workflow</a>
+                <a href="#partners" class="mobile-nav-item py-1.5 border-b border-gray-100">Partner Mills</a>
+                <a href="#gallery" class="mobile-nav-item py-1.5 border-b border-gray-100">Operations Gallery</a>
+                <a href="#testimonials" class="mobile-nav-item py-1.5 border-b border-gray-100">Testimonials</a>
+                <a href="#contact" class="mobile-nav-item py-1.5 border-b border-gray-100">Contact & RFQ</a>
+                <div class="pt-2 flex flex-col gap-2">
+                    <a href="https://wa.me/8801970026390" target="_blank" class="w-full py-2.5 bg-emerald-600 text-white rounded-lg text-center font-bold text-xs flex items-center justify-center gap-2">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp (+880 1970 026390)
+                    </a>
+                    <a href="#contact" class="mobile-nav-item w-full py-2.5 btn-primary-blue text-white rounded-lg text-center font-bold text-xs">
+                        Request a Quote (RFQ)
+                    </a>
                 </div>
             </div>
         </div>
-        
-        <!-- Decorative floating elements -->
-        <div class="absolute top-0 left-0 w-32 h-32 bg-blue-500/40 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-        <div class="absolute bottom-0 right-0 w-24 h-24 bg-yellow-500/50 rounded-full translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
-    </nav>
+    </header>
+
+    <!-- Header Spacer -->
+    <div class="h-16 sm:h-[70px]"></div>
 
     <!-- Hero Section -->
-    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-        <div id="vanta-bg" class="absolute inset-0"></div>
-        <div class="absolute inset-0 bg-[url('static/background.svg')] bg-cover bg-center" style="filter: blur(1.5px); -webkit-filter: blur(1.5px);"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/30"></div>
-        
-        <!-- Floating elements in hero -->
-        <div class="absolute top-1/4 left-1/4 w-8 h-8 bg-white/30 rounded-full float-animation" style="animation-delay: 1s;"></div>
-        <div class="absolute bottom-1/3 right-1/4 w-12 h-12 bg-blue-500/30 rounded-full float-animation" style="animation-delay: 2s;"></div>
-        <div class="absolute top-1/3 right-1/3 w-6 h-6 bg-yellow-500/50 rounded-full float-animation" style="animation-delay: 3s;"></div>
-        
-        <div class="container mx-auto px-6 z-10 text-left">
-            <div class="max-w-3xl">
-                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6" data-aos="fade-up">
-                    Global Trade
-                </h1>
-                <h1 class="text-5xl md:text-7xl font-bold text-white mb-8" data-aos="fade-up" data-aos-delay="100">
-                    <span class="text-secondary">Excellence</span>
-                </h1>
+    <section id="home" class="relative hero-section bg-grid-overlay text-white py-14 sm:py-20 lg:py-24 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-12 gap-10 items-center">
                 
-                <p class="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed" data-aos="fade-up" data-aos-delay="200">
-                    Premium solutions for Paper, Polymer & Yarn. Connecting global manufacturers with local markets since 2018.
-                </p>
-                
-                <div class="flex space-x-4" data-aos="fade-up" data-aos-delay="300">
-                    <a href="#contact" class="px-8 py-3 bg-white text-primary font-semibold rounded-lg hover:bg-opacity-90 transition duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-                        Get Free Quote
-                    </a>
-                    <a href="#products" class="px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-primary transition duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-                        Explore Products
-                    </a>
-                </div>
-                
-                <!-- Trust indicators -->
-                <div class="mt-16 flex flex-wrap gap-8" data-aos="fade-up" data-aos-delay="400">
-                    <div class="text-white">
-                        <div class="text-3xl font-bold">7+</div>
-                        <div class="text-white/80">Years Experience</div>
+                <!-- Left Content -->
+                <div class="lg:col-span-7 space-y-4 text-left">
+                    <div class="inline-flex items-center space-x-2 bg-white/10 border border-white/15 px-3 py-1 rounded-full text-xs font-medium text-white/90">
+                        <span class="w-2 h-2 rounded-full bg-brand-gold animate-pulse"></span>
+                        <span>Global Indenting & Trading Solutions Since 2018</span>
                     </div>
-                    <div class="text-white">
-                        <div class="text-3xl font-bold">50+</div>
-                        <div class="text-white/80">Global Partners</div>
-                    </div>
-                    <div class="text-white">
-                        <div class="text-3xl font-bold">100%</div>
-                        <div class="text-white/80">Client Satisfaction</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-       <!-- Scroll indicator -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2" data-aos="fade-up" >
-            <a href="#about" class="text-white hover:text-secondary transition-colors">
-                <div class="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-                    <div class="w-1 h-3 bg-white/50 rounded-full mt-2 animate-bounce"></div>
-                </div>
-            </a>
-        </div>
 
-    </section>
+                    <h1 class="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl leading-[1.18] tracking-tight text-white">
+                        Global Trade Excellence in <br>
+                        <span class="gold-gradient-text">Paper, Polymer & Yarn</span>
+                    </h1>
 
-       <!-- About Section -->
-    <section id="about" class="py-20 lg:py-28 gradient-bg">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <div data-aos="fade-right">
-                    <div class="relative group">
-                        <!-- Video Container -->
-                        <div class="rounded-2xl shadow-2xl overflow-hidden">
-                            <video 
-                                id="aboutVideo"
-                                class="w-full h-auto cursor-pointer"
-                                style="height: 330px;" 
-                                preload="metadata"
-                                poster="static/video-thumbnail.jpg"
-                            >
-                                <source src="static/company-video.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                            
-                            <!-- Custom Play Button Overlay -->
-                            <div id="videoOverlay" class="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity duration-300 group-hover:bg-black/40 cursor-pointer">
-                                <div class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <svg class="w-8 h-8 text-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M8 5v14l11-7z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Video controls (hidden by default, shown when playing) -->
-                        <div id="videoControls" class="absolute bottom-4 left-0 right-0 px-4 hidden">
-                            <div class="flex items-center justify-center space-x-4">
-                                <button id="playPause" class="text-white hover:text-secondary">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                                    </svg>
-                                </button>
-                                <button id="muteUnmute" class="text-white hover:text-secondary">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl hidden lg:block">
-                            <div class="text-primary text-4xl font-bold">2018</div>
-                            <div class="text-gray-600">Trusted Since</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div data-aos="fade-left">
-                    
-                    <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-primary">
-                        Your Trusted Global Trade Partner
-                    </h2>
-                    
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        Roza International has been a cornerstone in the indenting industry since 2018. We bridge global manufacturers with local markets through our extensive network and deep expertise in international trade logistics.
+                    <p class="text-sm sm:text-base text-gray-300 max-w-xl leading-relaxed">
+                        Premium sourcing for Paper, Polymer, Yarn, and Industrial Inks. Connecting world-class manufacturers with domestic markets with direct mill proforma invoices and LC execution.
                     </p>
-                    
-                    <p class="text-gray-600 mb-8 leading-relaxed">
-                        Our dedicated team ensures every product meets the highest standards of quality and reliability, providing competitive advantages in dynamic markets.
-                    </p>
-                    
-                    <!-- Features grid -->
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">Quality Assurance</span>
+
+                    <!-- Action CTAs -->
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <a href="#contact" class="btn-gold px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold shadow-md flex items-center gap-2">
+                            <i data-lucide="file-check" class="w-4 h-4 text-navy-950"></i>
+                            <span>Get Free Quote (RFQ)</span>
+                        </a>
+                        <a href="#products" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-2">
+                            <i data-lucide="layout-grid" class="w-4 h-4 text-brand-gold"></i>
+                            <span>Explore Products</span>
+                        </a>
+                    </div>
+
+                    <!-- Trust Stats Counter -->
+                    <div class="pt-5 border-t border-white/10 grid grid-cols-3 gap-4 max-w-lg">
+                        <div>
+                            <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">7+</div>
+                            <div class="text-xs text-gray-400 mt-0.5">Years Experience</div>
                         </div>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">Global Network</span>
+                        <div>
+                            <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">50+</div>
+                            <div class="text-xs text-gray-400 mt-0.5">Global Partner Mills</div>
                         </div>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">Competitive Pricing</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">Timely Delivery</span>
+                        <div>
+                            <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">100%</div>
+                            <div class="text-xs text-gray-400 mt-0.5">LC & Trade Compliance</div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Products Section - Optimized -->
-    <section id="products" class="py-20 lg:py-28 bg-white">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
-                <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-primary">
-                    Premium Industrial Solutions
-                </h2>
-                <p class="text-gray-600 text-lg">
-                    We source and supply high-quality products from trusted manufacturers worldwide, ensuring excellence in every delivery.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Product 1 -->
-                <div class="card" data-aos="fade-up">
-                    <div class="relative overflow-hidden">
-                        <img 
-                            src="static/appimage.avif" 
-                            alt="Paper & Pulp Products"
-                            class="w-full h-64 object-cover"
-                            loading="lazy"
-                            decoding="async"
-                        >
-                        <div class="absolute top-4 left-4">
-                            <span class="px-3 py-1 bg-primary text-white text-sm font-medium rounded-full">
-                                Hot Product
+                <!-- Right Hero Card: Indenting Highlights -->
+                <div class="lg:col-span-5">
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-3.5">
+                        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                            <div>
+                                <h3 class="font-display font-bold text-base text-white">Verified Indenting Lines</h3>
+                                <p class="text-[11px] text-gray-300">Direct Principal Representation</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded bg-brand-gold/20 text-brand-gold border border-brand-gold/40 text-[10px] font-bold uppercase tracking-wider">
+                                Direct Mills
                             </span>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-3 text-primary">Paper & Pulp</h3>
-                        <p class="text-gray-600 mb-4">
-                            High-quality industrial paper from leading manufacturers including App & Fbb Ningbo, Lienshen (Blueleaf), Krishna, and more.
-                        </p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500 font-medium">Premium Quality</span>
-                            <button class="text-primary hover:text-primary-light font-semibold transition-colors">
-                                Learn More →
-                            </button>
+
+                        <!-- 4 Categories Preview -->
+                        <div class="space-y-2.5">
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center">
+                                        <i data-lucide="layers" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">Paper & Paperboard</div>
+                                        <div class="text-[11px] text-gray-400">Duplex Board, FBB Ningbo, Art Card, Kraft</div>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-emerald-400 font-semibold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">Bulk FCL</span>
+                            </div>
+
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center">
+                                        <i data-lucide="box" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">Polymers & Resins</div>
+                                        <div class="text-[11px] text-gray-400">Virgin PP, HDPE, LDPE, LLDPE, PET</div>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-amber-300 font-semibold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">Virgin Prime</span>
+                            </div>
+
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center">
+                                        <i data-lucide="scissors" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">Textile & Industrial Yarns</div>
+                                        <div class="text-[11px] text-gray-400">Polyester DTY, FDY, Spun & Thread</div>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-indigo-300 font-semibold bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-500/30">RMG Export</span>
+                            </div>
+
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center">
+                                        <i data-lucide="droplet" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">Industrial Inks, Glue & Machinery</div>
+                                        <div class="text-[11px] text-gray-400">Offset Inks, Hot Melt Adhesive, Roll Packaging</div>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-cyan-300 font-semibold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">CFR CTG Port</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-1 text-center">
+                            <a href="#contact" class="text-xs font-bold text-brand-gold hover:underline inline-flex items-center gap-1">
+                                Inquire for Mill Pricing & Samples <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Product 2 -->
-                <div class="card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="relative overflow-hidden">
-                        <img 
-                            src="static/haihanink.avif" 
-                            alt="Ink & Gum Products"
-                            class="w-full h-64 object-cover"
-                            loading="lazy"
-                            decoding="async"
-                        >
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-3 text-primary">Ink, Glue & Gum</h3>
-                        <p class="text-gray-600 mb-4">
-                            Comprehensive range of industrial inks, adhesives, and gums from multiple trusted suppliers worldwide.
-                        </p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500 font-medium">Wide Selection</span>
-                            <button class="text-primary hover:text-primary-light font-semibold transition-colors">
-                                Learn More →
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Product 3 -->
-                <div class="card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="relative overflow-hidden">
-                        <img 
-                            src="static/appimage2.avif" 
-                            alt="Machinery & Equipment"
-                            class="w-full h-64 object-cover"
-                            loading="lazy"
-                            decoding="async"
-                        >
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-3 text-primary">Machinery & Packaging</h3>
-                        <p class="text-gray-600 mb-4">
-                            Complete range of industrial machinery and premium roll packaging solutions for various industries.
-                        </p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500 font-medium">Industrial Grade</span>
-                            <button class="text-primary hover:text-primary-light font-semibold transition-colors">
-                                Learn More →
-                            </button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </section>
 
-     <!-- Gallery Section - Optimized with lazy loading -->
-    <section id="gallery" class="py-20 lg:py-28 gradient-bg">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
-                <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-primary">
-                    Industry Gallery
-                </h2>
-                <p class="text-gray-600 text-lg">
-                    A visual showcase of our quality products, successful partnerships, and industrial operations.
-                </p>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <!-- Gallery images with lazy loading -->
-                <div class="gallery-item relative overflow-hidden rounded-xl cursor-pointer" data-aos="fade-up">
-                    <img 
-                        src="static/kev.jpg"
-                        alt="Industrial Operations"
-                        class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                        <span class="text-white font-medium">Apex Industry Owner</span>
+    <!-- About Section (With Video & Value Points) -->
+    <section id="about" class="py-14 sm:py-16 md:py-20 bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-10 items-center">
+                
+                <!-- Video Container (16:9 Aspect Ratio) -->
+                <div class="lg:col-span-5 relative">
+                    <div class="relative rounded-2xl overflow-hidden shadow-xl border border-gray-200 aspect-video bg-navy-900">
+                        <video id="aboutVideo" class="w-full h-full object-cover" poster="static/video-thumbnail.jpg" preload="metadata">
+                            <source src="static/company-video.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div id="videoOverlay" class="absolute inset-0 bg-navy-900/40 hover:bg-navy-900/30 transition flex flex-col items-center justify-center cursor-pointer group">
+                            <div class="w-14 h-14 rounded-full bg-white text-brand-blue flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-6 h-6 fill-brand-blue ml-0.5"></i>
+                            </div>
+                            <span class="text-white text-xs font-bold mt-2 uppercase tracking-wider">Company Video</span>
+                        </div>
+                    </div>
+
+                    <!-- Trust Tag -->
+                    <div class="mt-3 flex items-center justify-between text-xs text-gray-500 px-1">
+                        <span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-blue"></i> Indenting Since 2018</span>
+                        <span class="flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-gold"></i> Verified Global Mills</span>
                     </div>
                 </div>
 
-                <div class="gallery-item relative overflow-hidden rounded-xl cursor-pointer" data-aos="fade-up">
-                    <img 
-                        src="static/lee.jpg"
-                        alt="Industrial Operations"
-                        class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                        <span class="text-white font-medium">Sinosea's Sales Team</span>
+                <!-- Text Content -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-md bg-brand-blue/10 text-brand-blue text-xs font-bold uppercase tracking-wider">
+                        About Roza International
+                    </div>
+
+                    <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900 leading-tight">
+                        Your Trusted Indenting Partner in Global Industrial Trade
+                    </h2>
+
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Roza International has been a cornerstone in international indenting since 2018. We act as an accredited liaison bridging world-class industrial manufacturers with domestic printing, packaging, textile, and manufacturing enterprises.
+                    </p>
+
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        From indent negotiation, Proforma Invoice (PI) issuance, Letter of Credit (LC) execution, to marine insurance and customs discharge at Chattogram or Mongla ports, our trade specialists ensure strict quality control and competitive pricing.
+                    </p>
+
+                    <!-- 4 Core Strengths -->
+                    <div class="grid sm:grid-cols-2 gap-3 pt-2">
+                        <div class="p-3.5 rounded-xl bg-brand-surface border border-gray-200 flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-brand-blue/10 text-brand-blue flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="badge-percent" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-navy-900">Direct Mill Pricing</h4>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Direct Proforma Invoices from tier-1 global mills without intermediary margins.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-brand-surface border border-gray-200 flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-brand-blue/10 text-brand-blue flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check-check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-navy-900">Quality Assurance</h4>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Mill Test Certificates (MTC), lab sample verification, and ISO compliance.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-brand-surface border border-gray-200 flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-brand-blue/10 text-brand-blue flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="file-check-2" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-navy-900">LC & Trade Compliance</h4>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Flawless Letter of Credit clauses, UCP 600 alignment, and swift banking handling.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-brand-surface border border-gray-200 flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-brand-blue/10 text-brand-blue flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="ship" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-navy-900">Port Discharge Tracking</h4>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Continuous vessel tracking and prompt document release for customs clearance.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="gallery-item relative overflow-hidden rounded-xl cursor-pointer" data-aos="fade-up">
-                    <img 
-                        src="static/jessue.jpg"
-                        alt="Industrial Operations"
-                        class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                        <span class="text-white font-medium">Nd Paper & Pulp CEO</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item relative overflow-hidden rounded-xl cursor-pointer" data-aos="fade-up">
-                    <img 
-                        src="static/pika.jpg"
-                        alt="Industrial Operations"
-                        class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                        <span class="text-white font-medium">Pika's Cooking Industry</span>
-                    </div>
-                </div>
-
-            </div>
-            
-            <div class="text-center mt-12" data-aos="fade-up">
-                <a href="https://www.facebook.com/TANJILISOHEL" 
-                   class="btn btn-primary"
-                   rel="noopener noreferrer"
-                   target="_blank">
-                    View Full Gallery
-                </a>
             </div>
         </div>
     </section>
 
-    <!-- Testimonial Slider Section -->
-    <!-- Testimonials Section - Modern Design -->
-    <!-- Testimonials Section - Modern Design -->
-    <section id="testimonials" class="py-20 lg:py-28 bg-gradient-to-b from-gray-50 to-white">
-        <div class="container mx-auto px-4 lg:px-8">
-            <!-- Section Header -->
-            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
-                <div class="inline-flex items-center justify-center px-4 py-2" style="background-color: rgba(0, 80, 143, 0.1); border-radius: 9999px;">
-                    <span class="font-medium" style="color: #00508F;">Testimonials</span>
+    <!-- Products Catalog Section (Standardized Sizing) -->
+    <section id="products" class="py-14 sm:py-16 md:py-20 bg-brand-surface border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-md bg-brand-blue/10 text-brand-blue text-xs font-bold uppercase tracking-wider mb-2">
+                    Product Catalog
                 </div>
-                <h2 class="text-3xl lg:text-4xl font-bold mb-6" style="color: #00508F;">
-                    What Our Clients Say
+                <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900">
+                    Premium Industrial Sourcing & Indenting
                 </h2>
-                <p class="text-gray-600 text-lg">
-                    Trusted by industry leaders worldwide. Here's what they have to say about working with us.
+                <p class="text-xs sm:text-sm text-gray-600 mt-2">
+                    Supplying verified raw materials from premier global manufacturers directly to your port.
                 </p>
+
+                <!-- Category Filter Buttons -->
+                <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2 mt-6" id="productFilterButtons">
+                    <button data-filter="all" class="filter-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-blue text-white shadow-sm transition">
+                        All Products
+                    </button>
+                    <button data-filter="paper" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition">
+                        Paper & Paperboard
+                    </button>
+                    <button data-filter="polymer" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition">
+                        Polymers & Resins
+                    </button>
+                    <button data-filter="yarn" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition">
+                        Yarn & Textiles
+                    </button>
+                    <button data-filter="ink" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition">
+                        Inks & Adhesives
+                    </button>
+                    <button data-filter="machinery" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition">
+                        Machinery & Packaging
+                    </button>
+                </div>
             </div>
 
-            <!-- Testimonial Cards Grid -->
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                <!-- Testimonial 1 -->
-                <div class="relative" data-aos="fade-up">
-                    <div class="card h-full bg-white border border-gray-100 hover:border-primary/20 transition-all duration-300">
-                        <div class="p-6">
-                            <!-- Quote Icon -->
-                            <div class="mb-6">
-                                <svg class="w-12 h-12" fill="#00508F" style="opacity: 0.2;" viewBox="0 0 24 24">
-                                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-                                </svg>
-                            </div>
-                            
-                            <!-- Rating -->
-                            <div class="flex mb-4">
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                            </div>
-                            
-                            <!-- Testimonial Text -->
-                            <p class="text-gray-600 mb-6 leading-relaxed italic">
-                                "Working with Roza International has been a game-changer for our business. Their attention to detail and commitment to quality is unmatched in the industry."
+            <!-- Products Grid -->
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="productsGrid">
+
+                <!-- Product 1: Paper & Board -->
+                <div class="product-item card-box flex flex-col overflow-hidden" data-category="paper">
+                    <div class="relative h-48 bg-gray-100 overflow-hidden">
+                        <img src="static/appimage.avif" alt="Duplex Board & FBB Paper" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                        <span class="absolute top-2.5 left-2.5 bg-navy-800 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                            Top Seller
+                        </span>
+                        <span class="absolute bottom-2.5 right-2.5 bg-white/90 text-navy-900 text-[10px] font-semibold px-2 py-0.5 rounded shadow">
+                            APP & FBB Ningbo
+                        </span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Paper & Pulp</span>
+                            <h3 class="font-display font-bold text-lg text-navy-900 mb-1">Duplex Board, FBB & Kraft</h3>
+                            <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
+                                Industrial duplex board grey/white back, C2S art card, and kraft paper sourced from APP Ningbo, Blueleaf, and Krishna.
                             </p>
-                            
-                            <!-- Client Info -->
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4" style="background: linear-gradient(135deg, #00508F 0%, #4a7ca9 100%);">
-                                    NA
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Md Nurul Amin Islam Nazim</h4>
-                                    <p class="text-gray-500 text-sm">Managing Director, Radiant Industry</p>
-                                </div>
+                            <div class="bg-gray-50 rounded-lg p-2.5 text-[11px] space-y-1 border border-gray-100 mb-4">
+                                <div class="flex justify-between"><span class="text-gray-500">GSM:</span> <span class="font-semibold text-gray-800">180 – 450 GSM</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Packaging:</span> <span class="font-semibold text-gray-800">Rolls & Palletized Sheets</span></div>
                             </div>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <button onclick="selectProductForQuote('Paper & Paperboard')" class="text-xs font-bold text-brand-blue hover:text-brand-blueHover flex items-center gap-1">
+                                Request Quote <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <a href="https://wa.me/8801970026390?text=Inquiry%20regarding%20Paper%20and%20Pulp%20indenting." target="_blank" class="text-emerald-600 hover:text-emerald-700">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2: Polymers & Resins -->
+                <div class="product-item card-box flex flex-col overflow-hidden" data-category="polymer">
+                    <div class="relative h-48 bg-gradient-to-tr from-slate-900 to-slate-700 flex items-center justify-center text-center p-4">
+                        <div>
+                            <i data-lucide="box" class="w-12 h-12 text-brand-gold mx-auto mb-1 opacity-90"></i>
+                            <span class="text-white font-display font-bold text-base block">Virgin Polymer Resins</span>
+                            <span class="text-gray-300 text-xs">PP, HDPE, LDPE, LLDPE, PET</span>
+                        </div>
+                        <span class="absolute top-2.5 left-2.5 bg-brand-blue text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                            Prime Virgin
+                        </span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Polymers</span>
+                            <h3 class="font-display font-bold text-lg text-navy-900 mb-1">Virgin Polymer Granules</h3>
+                            <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
+                                Prime virgin polymers for injection molding, blow molding, film extrusion, and raffia bags from Middle East & Asian producers.
+                            </p>
+                            <div class="bg-gray-50 rounded-lg p-2.5 text-[11px] space-y-1 border border-gray-100 mb-4">
+                                <div class="flex justify-between"><span class="text-gray-500">Grades:</span> <span class="font-semibold text-gray-800">Film, Injection, Blow, Raffia</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Packaging:</span> <span class="font-semibold text-gray-800">25kg Bags / 20ft FCL</span></div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <button onclick="selectProductForQuote('Polymers & Resins')" class="text-xs font-bold text-brand-blue hover:text-brand-blueHover flex items-center gap-1">
+                                Request Quote <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <a href="https://wa.me/8801970026390?text=Inquiry%20regarding%20Polymer%20Resins%20indenting." target="_blank" class="text-emerald-600 hover:text-emerald-700">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3: Industrial Yarn & Fibers -->
+                <div class="product-item card-box flex flex-col overflow-hidden" data-category="yarn">
+                    <div class="relative h-48 bg-gradient-to-tr from-indigo-950 to-indigo-800 flex items-center justify-center text-center p-4">
+                        <div>
+                            <i data-lucide="scissors" class="w-12 h-12 text-brand-gold mx-auto mb-1 opacity-90"></i>
+                            <span class="text-white font-display font-bold text-base block">Industrial Yarn & Filaments</span>
+                            <span class="text-indigo-200 text-xs">DTY, FDY, Spun & Sewing Thread</span>
+                        </div>
+                        <span class="absolute top-2.5 left-2.5 bg-indigo-700 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                            Export Quality
+                        </span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Yarn & Textiles</span>
+                            <h3 class="font-display font-bold text-lg text-navy-900 mb-1">Polyester & Spun Yarns</h3>
+                            <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
+                                High tenacity polyester yarns, textured yarns, and threads for apparel weaving, knitting, and label accessories manufacturing.
+                            </p>
+                            <div class="bg-gray-50 rounded-lg p-2.5 text-[11px] space-y-1 border border-gray-100 mb-4">
+                                <div class="flex justify-between"><span class="text-gray-500">Denier:</span> <span class="font-semibold text-gray-800">50D to 600D (Single & Double)</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Origin:</span> <span class="font-semibold text-gray-800">India, China, Vietnam</span></div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <button onclick="selectProductForQuote('Industrial Yarn & Fibers')" class="text-xs font-bold text-brand-blue hover:text-brand-blueHover flex items-center gap-1">
+                                Request Quote <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <a href="https://wa.me/8801970026390?text=Inquiry%20regarding%20Yarn%20indenting." target="_blank" class="text-emerald-600 hover:text-emerald-700">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4: Inks, Glue & Gum -->
+                <div class="product-item card-box flex flex-col overflow-hidden" data-category="ink">
+                    <div class="relative h-48 bg-gray-100 overflow-hidden">
+                        <img src="static/haihanink.avif" alt="Haihan Ink Products" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                        <span class="absolute bottom-2.5 right-2.5 bg-white/90 text-navy-900 text-[10px] font-semibold px-2 py-0.5 rounded shadow">
+                            Haihan & Multi-Brands
+                        </span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Printing & Chemicals</span>
+                            <h3 class="font-display font-bold text-lg text-navy-900 mb-1">Industrial Inks, Glue & Gum</h3>
+                            <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
+                                Printing inks (offset, flexo), hot-melt adhesives, and water-based gums for corrugated carton packaging and binding.
+                            </p>
+                            <div class="bg-gray-50 rounded-lg p-2.5 text-[11px] space-y-1 border border-gray-100 mb-4">
+                                <div class="flex justify-between"><span class="text-gray-500">Products:</span> <span class="font-semibold text-gray-800">Process Inks, Hot Melt, Cold Glue</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Compliance:</span> <span class="font-semibold text-gray-800">RoHS / REACH Compliant</span></div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <button onclick="selectProductForQuote('Industrial Inks & Adhesives')" class="text-xs font-bold text-brand-blue hover:text-brand-blueHover flex items-center gap-1">
+                                Request Quote <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <a href="https://wa.me/8801970026390?text=Inquiry%20regarding%20Industrial%20Inks%20and%20Glues." target="_blank" class="text-emerald-600 hover:text-emerald-700">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 5: Machinery & Packaging -->
+                <div class="product-item card-box flex flex-col overflow-hidden" data-category="machinery">
+                    <div class="relative h-48 bg-gray-100 overflow-hidden">
+                        <img src="static/appimage2.avif" alt="Machinery & Packaging" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Industrial Equipment</span>
+                            <h3 class="font-display font-bold text-lg text-navy-900 mb-1">Machinery & Packaging Lines</h3>
+                            <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
+                                Industrial roll wrapping units, paper slitting machines, and carton box manufacturing lines for modern industrial setups.
+                            </p>
+                            <div class="bg-gray-50 rounded-lg p-2.5 text-[11px] space-y-1 border border-gray-100 mb-4">
+                                <div class="flex justify-between"><span class="text-gray-500">Equipment:</span> <span class="font-semibold text-gray-800">Slitters, Sheeters, Roll Wrappers</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Terms:</span> <span class="font-semibold text-gray-800">Turnkey Indent / LC</span></div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <button onclick="selectProductForQuote('Packaging Machinery')" class="text-xs font-bold text-brand-blue hover:text-brand-blueHover flex items-center gap-1">
+                                Request Quote <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <a href="https://wa.me/8801970026390?text=Inquiry%20regarding%20Industrial%20Machinery." target="_blank" class="text-emerald-600 hover:text-emerald-700">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 6: Label Tag, Leather & RMG Accessories -->
+                <div class="product-item card-box flex flex-col overflow-hidden" data-category="yarn">
+                    <div class="relative h-48 bg-gradient-to-tr from-amber-950 to-amber-800 flex items-center justify-center text-center p-4">
+                        <div>
+                            <i data-lucide="tag" class="w-12 h-12 text-brand-gold mx-auto mb-1 opacity-90"></i>
+                            <span class="text-white font-display font-bold text-base block">Label Tags & Synthetic Leather</span>
+                            <span class="text-amber-200 text-xs">PU / PVC Leather & Trims</span>
+                        </div>
+                        <span class="absolute bottom-2.5 right-2.5 bg-white/90 text-navy-900 text-[10px] font-semibold px-2 py-0.5 rounded shadow">
+                            Export Garments Ready
+                        </span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Garments Trims</span>
+                            <h3 class="font-display font-bold text-lg text-navy-900 mb-1">Label Tag & Leather Materials</h3>
+                            <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
+                                Raw materials for garment tags, woven label tapes, and synthetic PU/PVC leather for footwear, bags, and apparel embellishment.
+                            </p>
+                            <div class="bg-gray-50 rounded-lg p-2.5 text-[11px] space-y-1 border border-gray-100 mb-4">
+                                <div class="flex justify-between"><span class="text-gray-500">Materials:</span> <span class="font-semibold text-gray-800">PU Leather, Coated Paper, Satin</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Standard:</span> <span class="font-semibold text-gray-800">OEKO-TEX Compliant</span></div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <button onclick="selectProductForQuote('Label Tag & Leather')" class="text-xs font-bold text-brand-blue hover:text-brand-blueHover flex items-center gap-1">
+                                Request Quote <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <a href="https://wa.me/8801970026390?text=Inquiry%20regarding%20Label%20Tag%20and%20Leather%20products." target="_blank" class="text-emerald-600 hover:text-emerald-700">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Indenting Process (How We Work) -->
+    <section id="process" class="py-14 sm:py-16 md:py-20 bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-md bg-brand-blue/10 text-brand-blue text-xs font-bold uppercase tracking-wider mb-2">
+                    How We Work
+                </div>
+                <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900">
+                    Transparent 4-Step Indenting Workflow
+                </h2>
+                <p class="text-xs sm:text-sm text-gray-600 mt-2">
+                    A seamless, transparent indenting procedure from specification submission to vessel discharge.
+                </p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="p-5 rounded-xl bg-brand-surface border border-gray-200 relative card-box">
+                    <div class="w-9 h-9 rounded-lg bg-navy-800 text-brand-gold font-display font-bold text-sm flex items-center justify-center mb-3">
+                        01
+                    </div>
+                    <h3 class="font-display font-bold text-sm text-navy-900 mb-1.5">Mill Sourcing & Matching</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Share your technical specifications (GSM, melt index, denier). We evaluate verified partner mills to secure direct Proforma Quotes.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl bg-brand-surface border border-gray-200 relative card-box">
+                    <div class="w-9 h-9 rounded-lg bg-brand-blue text-white font-display font-bold text-sm flex items-center justify-center mb-3">
+                        02
+                    </div>
+                    <h3 class="font-display font-bold text-sm text-navy-900 mb-1.5">Sample Testing & PI</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        We arrange mill samples for laboratory testing. Upon approval, a formal Proforma Invoice (PI) is issued directly in your company name.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl bg-brand-surface border border-gray-200 relative card-box">
+                    <div class="w-9 h-9 rounded-lg bg-navy-800 text-brand-gold font-display font-bold text-sm flex items-center justify-center mb-3">
+                        03
+                    </div>
+                    <h3 class="font-display font-bold text-sm text-navy-900 mb-1.5">LC Opening & Production</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        We assist in drafting compliant Letter of Credit (LC) clauses. The mill verifies the LC and initiates certified batch production.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl bg-brand-surface border border-gray-200 relative card-box">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white font-display font-bold text-sm flex items-center justify-center mb-3">
+                        04
+                    </div>
+                    <h3 class="font-display font-bold text-sm text-navy-900 mb-1.5">Ocean Transit & Clearance</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        We monitor vessel progress to Chattogram/Mongla port and expedite shipping documents (BL, Packing List, CO) through banking channels.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Partners Section (Original Logos) -->
+    <section id="partners" class="py-12 sm:py-16 bg-brand-surface border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-brand-gold block">Mill Representation</span>
+                <h2 class="font-display font-extrabold text-xl sm:text-2xl text-navy-900 mt-1">
+                    Collaborating with World-Class Manufacturers
+                </h2>
+            </div>
+
+            <!-- Standardized Partner Logos -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-center h-20 shadow-sm hover:border-brand-blue/40 transition">
+                    <img src="static/ningbo.jpeg" alt="Ningbo" class="max-h-11 w-auto object-contain">
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-center h-20 shadow-sm hover:border-brand-blue/40 transition">
+                    <img src="static/blueleaf.jpg" alt="Blueleaf" class="max-h-11 w-auto object-contain">
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-center h-20 shadow-sm hover:border-brand-blue/40 transition">
+                    <img src="static/sinosea.jpeg" alt="Sinosea" class="max-h-11 w-auto object-contain">
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-center h-20 shadow-sm hover:border-brand-blue/40 transition">
+                    <img src="static/leaders.png" alt="Leaders" class="max-h-11 w-auto object-contain">
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-center h-20 shadow-sm hover:border-brand-blue/40 transition">
+                    <img src="static/krishna.jpg" alt="Krishna" class="max-h-11 w-auto object-contain">
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-200 flex items-center justify-center h-20 shadow-sm hover:border-brand-blue/40 transition">
+                    <img src="static/cerys.jpg" alt="Cerys" class="max-h-11 w-auto object-contain">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Industry Gallery (With Real Photos from Repo) -->
+    <section id="gallery" class="py-14 sm:py-16 md:py-20 bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-10">
+                <div>
+                    <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-md bg-brand-blue/10 text-brand-blue text-xs font-bold uppercase tracking-wider mb-2">
+                        Industry Engagements
+                    </div>
+                    <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900">
+                        Executive Delegations & Mill Summits
+                    </h2>
+                </div>
+                <p class="text-xs text-gray-500 max-w-sm mt-2 sm:mt-0">
+                    Direct on-site mill inspections and supplier partnerships across the globe.
+                </p>
+            </div>
+
+            <!-- Balanced 4-Column Image Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                <div class="group relative rounded-xl overflow-hidden shadow-sm aspect-[4/3] bg-gray-100">
+                    <img src="static/kev.jpg" alt="Apex Industry Owner" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                        <span class="text-[10px] font-bold text-brand-gold">Executive Summit</span>
+                        <span class="text-white text-xs font-semibold">Apex Industry Owner</span>
+                    </div>
+                </div>
+
+                <div class="group relative rounded-xl overflow-hidden shadow-sm aspect-[4/3] bg-gray-100">
+                    <img src="static/lee.jpg" alt="Sinosea Sales Team" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                        <span class="text-[10px] font-bold text-brand-gold">Partner Delegation</span>
+                        <span class="text-white text-xs font-semibold">Sinosea Sales Team</span>
+                    </div>
+                </div>
+
+                <div class="group relative rounded-xl overflow-hidden shadow-sm aspect-[4/3] bg-gray-100">
+                    <img src="static/jessue.jpg" alt="Nd Paper & Pulp CEO" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                        <span class="text-[10px] font-bold text-brand-gold">Mill Leadership</span>
+                        <span class="text-white text-xs font-semibold">Nd Paper & Pulp CEO</span>
+                    </div>
+                </div>
+
+                <div class="group relative rounded-xl overflow-hidden shadow-sm aspect-[4/3] bg-gray-100">
+                    <img src="static/pika.jpg" alt="Pika Cooking Industry" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                        <span class="text-[10px] font-bold text-brand-gold">Facility Visit</span>
+                        <span class="text-white text-xs font-semibold">Pika Industry Inspection</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-14 sm:py-16 md:py-20 bg-brand-surface border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-md bg-brand-blue/10 text-brand-blue text-xs font-bold uppercase tracking-wider mb-2">
+                    Testimonials
+                </div>
+                <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900">
+                    What Our Industrial Clients Say
+                </h2>
+                <p class="text-xs sm:text-sm text-gray-600 mt-2">
+                    Endorsements from corporate procurement directors and factory managers.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-5">
+                <!-- Testimonial 1 -->
+                <div class="card-box p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex text-brand-gold mb-3">
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed italic mb-4">
+                            "Working with Roza International has been a game-changer for our business. Their attention to detail, competitive indent rates, and commitment to quality is unmatched in the industry."
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-3 pt-3 border-t border-gray-100">
+                        <div class="w-10 h-10 rounded-full bg-navy-800 text-brand-gold font-bold text-xs flex items-center justify-center shadow">
+                            NA
+                        </div>
+                        <div>
+                            <div class="font-bold text-xs sm:text-sm text-navy-900">Md Nurul Amin Islam Nazim</div>
+                            <div class="text-[11px] text-gray-500">Managing Director, Radiant Industry</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Testimonial 2 -->
-                <div class="relative" data-aos="fade-up" data-aos-delay="100">
-                    <div class="card h-full bg-white border border-gray-100 hover:border-primary/20 transition-all duration-300">
-                        <div class="p-6">
-                            <!-- Quote Icon -->
-                            <div class="mb-6">
-                                <svg class="w-12 h-12" fill="#00508F" style="opacity: 0.2;" viewBox="0 0 24 24">
-                                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-                                </svg>
-                            </div>
-                            
-                            <!-- Rating -->
-                            <div class="flex mb-4">
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                            </div>
-                            
-                            <!-- Testimonial Text -->
-                            <p class="text-gray-600 mb-6 leading-relaxed italic">
-                                "The team at Roza International delivers exceptional service and products every time. Their global network gives us access to the best suppliers worldwide."
-                            </p>
-                            
-                            <!-- Client Info -->
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4" style="background: linear-gradient(135deg, #00508F 0%, #4a7ca9 100%);">
-                                    JU
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Jaman Uddain</h4>
-                                    <p class="text-gray-500 text-sm">Manager, Prime International</p>
-                                </div>
-                            </div>
+                <div class="card-box p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex text-brand-gold mb-3">
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed italic mb-4">
+                            "The team at Roza International delivers exceptional service and products every time. Their global network gives us access to the best suppliers worldwide."
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-3 pt-3 border-t border-gray-100">
+                        <div class="w-10 h-10 rounded-full bg-brand-blue text-white font-bold text-xs flex items-center justify-center shadow">
+                            JU
+                        </div>
+                        <div>
+                            <div class="font-bold text-xs sm:text-sm text-navy-900">Jaman Uddain</div>
+                            <div class="text-[11px] text-gray-500">Manager, Prime International</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Testimonial 3 -->
-                <div class="relative" data-aos="fade-up" data-aos-delay="200">
-                    <div class="card h-full bg-white border border-gray-100 hover:border-primary/20 transition-all duration-300">
-                        <div class="p-6">
-                            <!-- Quote Icon -->
-                            <div class="mb-6">
-                                <svg class="w-12 h-12" fill="#00508F" style="opacity: 0.2;" viewBox="0 0 24 24">
-                                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-                                </svg>
-                            </div>
-                            
-                            <!-- Rating -->
-                            <div class="flex mb-4">
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                                <svg class="w-5 h-5" style="color: #c9a769;" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                </svg>
-                            </div>
-                            
-                            <!-- Testimonial Text -->
-                            <p class="text-gray-600 mb-6 leading-relaxed italic">
-                                "Reliability and professionalism define Roza International. They've consistently exceeded our expectations in quality and delivery timelines."
-                            </p>
-                            
-                            <!-- Client Info -->
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4" style="background: linear-gradient(135deg, #00508F 0%, #4a7ca9 100%);">
-                                    JB
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Jahihur Islam Bablu</h4>
-                                    <p class="text-gray-500 text-sm">Director, BN Printing & Packaging</p>
-                                </div>
-                            </div>
+                <div class="card-box p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex text-brand-gold mb-3">
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-brand-gold"></i>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed italic mb-4">
+                            "Reliability and professionalism define Roza International. They've consistently exceeded our expectations in quality and delivery timelines."
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-3 pt-3 border-t border-gray-100">
+                        <div class="w-10 h-10 rounded-full bg-navy-800 text-brand-gold font-bold text-xs flex items-center justify-center shadow">
+                            JB
+                        </div>
+                        <div>
+                            <div class="font-bold text-xs sm:text-sm text-navy-900">Jahihur Islam Bablu</div>
+                            <div class="text-[11px] text-gray-500">Director, BN Printing & Packaging</div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Stats Bar -->
-            <div class="rounded-2xl p-8 text-white" data-aos="fade-up" style="background: linear-gradient(135deg, #00508F 0%, #003d6b 100%);">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    <div class="text-center">
-                        <div class="text-3xl md:text-4xl font-bold mb-2">100%</div>
-                        <div style="opacity: 0.9;">Client Satisfaction</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl md:text-4xl font-bold mb-2">50+</div>
-                        <div style="opacity: 0.9;">Global Partners</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl md:text-4xl font-bold mb-2">7+</div>
-                        <div style="opacity: 0.9;">Years Experience</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl md:text-4xl font-bold mb-2">24/7</div>
-                        <div style="opacity: 0.9;">Support Available</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CTA Section -->
-            <div class="text-center mt-16" data-aos="fade-up">
-                <h3 class="text-2xl font-bold mb-6" style="color: #00508F;">Ready to Experience Excellence?</h3>
-                <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
-                    Join our growing list of satisfied clients and discover why industry leaders trust Roza International.
-                </p>
-                <a href="#contact" class="inline-flex items-center justify-center px-8 py-3 text-lg font-medium rounded-lg transition-all duration-300 hover:transform hover:-translate-y-1" style="background: linear-gradient(135deg, #00508F 0%, #003d6b 100%); color: white; box-shadow: 0 4px 15px rgba(0, 80, 143, 0.3);">
-                    Get Your Free Quote Today
-                </a>
-            </div>
         </div>
     </section>
 
-    <!-- Partners Section -->
-    <section id="partners" class="py-20 lg:py-28 bg-white">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
-                <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-primary">
-                    Trusted By Industry Leaders
-                </h2>
-                <p class="text-gray-600 text-lg">
-                    We collaborate with world-class manufacturers to deliver premium products and solutions.
-                </p>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+    <!-- Contact & RFQ Section -->
+    <section id="contact" class="py-14 sm:py-16 md:py-20 bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-10 items-start">
                 
-                <!-- 1st -->
-                <div class="partner-logo" data-aos="fade-up">
-                    <img 
-                        src="static/ningbo.jpeg" 
-                        alt="Ningbo"
-                        class="w-full h-24 object-contain p-4 hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </div>
-                
-                <!-- 2nd -->
-                <div class="partner-logo" data-aos="fade-up">
-                    <img 
-                        src="static/cerys.jpg" 
-                        alt="Ningbo"
-                        class="w-full h-24 object-contain p-4 hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </div>
+                <!-- Left: Contact Details -->
+                <div class="lg:col-span-5 space-y-5">
+                    <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-md bg-brand-blue/10 text-brand-blue text-xs font-bold uppercase tracking-wider">
+                        Contact & Indenting Desk
+                    </div>
 
-                <!-- 3rd -->
-                <div class="partner-logo" data-aos="fade-up">
-                    <img 
-                        src="static/blueleaf.jpg" 
-                        alt="Ningbo"
-                        class="w-full h-24 object-contain p-4 hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </div>
-
-                <!-- 4th -->
-                <div class="partner-logo" data-aos="fade-up">
-                    <img 
-                        src="static/sinosea.jpeg" 
-                        alt="Ningbo"
-                        class="w-full h-24 object-contain p-4 hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </div>
-
-                <!-- 5th -->
-                <div class="partner-logo" data-aos="fade-up">
-                    <img 
-                        src="static/leaders.png" 
-                        alt="Ningbo"
-                        class="w-full h-24 object-contain p-4 hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </div>
-
-                <!-- 6th -->
-                <div class="partner-logo" data-aos="fade-up">
-                    <img 
-                        src="static/krishna.jpg" 
-                        alt="Ningbo"
-                        class="w-full h-24 object-contain p-4 hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 lg:py-28 gradient-bg">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="grid lg:grid-cols-2 gap-12">
-                <!-- Contact Info -->
-                <div data-aos="fade-right">
-                    <h2 class="text-3xl lg:text-4xl font-bold mb-8 text-primary">
+                    <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900">
                         Let's Work Together
                     </h2>
-                    
-                    <div class="space-y-8">
-                        <div class="flex items-start space-x-4">
-                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
+
+                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                        Submit your product grade requirements or container inquiry. Our indenting managers will furnish verified mill quotes, sample lead times, and proforma invoices.
+                    </p>
+
+                    <!-- Contact Cards -->
+                    <div class="space-y-3 pt-2">
+                        <div class="p-3.5 rounded-xl bg-brand-surface border border-gray-200 flex items-center space-x-3.5">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <h4 class="font-semibold text-lg mb-1 text-gray-800">Email</h4>
-                                <a href="mailto:tanjil@rozainternational.com" class="text-primary hover:text-primary-light">
-                                    tanjil@rozainternational.com
-                                </a>
-                                <br>
-                                <a href="mailto:tanjilcrop@gmail.com" class="text-primary hover:text-primary-light">
-                                    tanjilcrop@gmail.com
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start space-x-4">
-                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-lg mb-1 text-gray-800">Phone</h4>
-                                <a href="tel:+8801970026390" class="text-primary hover:text-primary-light">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Direct Phone & WhatsApp</div>
+                                <a href="tel:+8801970026390" class="text-xs sm:text-sm font-bold text-navy-900 hover:text-brand-blue transition">
                                     +880 1970 026390
                                 </a>
-                                <p class="text-gray-600 text-sm mt-1">WhatsApp, WeChat Available</p>
+                                <div class="text-[10px] text-gray-400">WhatsApp & WeChat Available</div>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-brand-surface border border-gray-200 flex items-center space-x-3.5">
+                            <div class="w-10 h-10 rounded-lg bg-brand-blue/10 text-brand-blue flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Corporate Emails</div>
+                                <div class="text-xs sm:text-sm font-bold text-navy-900">
+                                    <a href="mailto:tanjilisohel@gmail.com" class="hover:text-brand-blue">tanjilisohel@gmail.com</a>
+                                </div>
+                                <div class="text-[11px] text-gray-500">
+                                    <a href="mailto:info@rozainternational.com" class="hover:text-brand-blue">info@rozainternational.com</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-brand-surface border border-gray-200 flex items-center space-x-3.5">
+                            <div class="w-10 h-10 rounded-lg bg-navy-800/10 text-navy-900 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Head Office Location</div>
+                                <div class="text-xs sm:text-sm font-bold text-navy-900">49/1/B, Purana Paltan Lane, Dhaka</div>
+                                <div class="text-[10px] text-gray-500">Handling Chattogram & Mongla Port Shipments</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Contact Form -->
-                <div data-aos="fade-left">
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <form id="contactForm" class="space-y-6">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                                <input type="text" id="name" required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                                    placeholder="Enter your name">
+
+                <!-- Right: RFQ Form -->
+                <div class="lg:col-span-7">
+                    <div class="bg-brand-surface p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm">
+                        <div class="mb-5 pb-3 border-b border-gray-200 flex items-center justify-between">
+                            <h3 class="font-display font-bold text-base text-navy-900">Request Indent Quotation (RFQ)</h3>
+                            <span class="text-[11px] text-brand-blue font-semibold">Fast 24-hr Response</span>
+                        </div>
+
+                        <form id="contactForm" class="space-y-4">
+                            <div class="grid sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label for="name" class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Full Name *</label>
+                                    <input type="text" id="name" required placeholder="Enter your name" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition">
+                                </div>
+                                <div>
+                                    <label for="company" class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Company / Mill Name</label>
+                                    <input type="text" id="company" placeholder="e.g. Radiant Packaging Ltd" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition">
+                                </div>
                             </div>
-                            
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                <input type="email" id="email" required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                                    placeholder="Enter your email">
+
+                            <div class="grid sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label for="email" class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Email Address *</label>
+                                    <input type="email" id="email" required placeholder="name@company.com" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition">
+                                </div>
+                                <div>
+                                    <label for="phone" class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Phone / WhatsApp *</label>
+                                    <input type="tel" id="phone" required placeholder="+880 1970 026390" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition">
+                                </div>
                             </div>
-                            
-                            <div>
-                                <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                                <textarea id="message" rows="4" required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                                    placeholder="Tell us about your requirements"></textarea>
+
+                            <div class="grid sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label for="productCategory" class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Product Category *</label>
+                                    <select id="productCategory" required class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition">
+                                        <option value="">Select Category...</option>
+                                        <option value="Paper & Paperboard">Paper & Paperboard (Duplex/FBB/Kraft)</option>
+                                        <option value="Polymers & Resins">Polymers & Resins (PP/HDPE/LDPE/PET)</option>
+                                        <option value="Industrial Yarn & Fibers">Industrial Yarn & Textiles (DTY/FDY)</option>
+                                        <option value="Industrial Inks & Adhesives">Industrial Inks, Glue & Gum</option>
+                                        <option value="Packaging Machinery">Packaging Machinery & Equipment</option>
+                                        <option value="Label Tag & Leather">Label Tags & Synthetic Leather</option>
+                                        <option value="Other Indenting">Other Custom Commodity</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="volume" class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Estimated Quantity / Volume</label>
+                                    <input type="text" id="volume" placeholder="e.g. 1x40ft FCL / 25 Tons" class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition">
+                                </div>
                             </div>
-                            
-                            <button type="submit" class="w-full btn btn-primary py-3">
-                                Send Message
+
+                            <div>
+                                <label for="message" class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Specifications / Requirements *</label>
+                                <textarea id="message" rows="3" required placeholder="Specify GSM, sheet/roll size, target port (e.g. Chattogram), or particular mill preference..." class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full py-3 btn-primary-blue rounded-lg font-bold text-xs sm:text-sm tracking-wider uppercase shadow-md flex items-center justify-center gap-2">
+                                <i data-lucide="send" class="w-4 h-4 text-brand-gold"></i>
+                                <span>Send Quotation Inquiry</span>
                             </button>
                         </form>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="mb-8 md:mb-0">
-                    <div class="flex items-center mb-4">
-                        <h3 class="text-2xl font-bold">ROZA INTERNATIONAL</h3>
-                    </div>
-                    <p class="text-gray-400 max-w-xs">
-                        Connecting global markets with premium products through trusted partnerships.
-                    </p>
+    <footer class="bg-navy-950 text-white pt-10 sm:pt-14 pb-28 lg:pb-10 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Mobile Smart Quick-Action Grid (Phone Only) -->
+            <div class="lg:hidden mb-8 p-4 rounded-2xl bg-white/5 border border-white/10">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-brand-gold mb-3 flex items-center justify-between">
+                    <span>Direct Trade Contacts</span>
+                    <span class="flex items-center gap-1 text-emerald-400 text-[10px] font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Active
+                    </span>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-                    <div>
-                        <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-                        <ul class="space-y-2">
-                            <li><a href="https://rozainternational.com" class="text-gray-400 hover:text-white transition">Home</a></li>
-                            <li><a href="#about" class="text-gray-400 hover:text-white transition">About</a></li>
-                            <li><a href="#products" class="text-gray-400 hover:text-white transition">Products</a></li>
-                            <li><a href="#partners" class="text-gray-400 hover:text-white transition">Partners</a></li>
-                            <li><a href="#contact" class="text-gray-400 hover:text-white transition">Contact</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-4">Products</h4>
-                        <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-white transition">Paper & Pulp</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition">Label Tag & Leather</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition">Ink, Glue & Gum</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition">Other Products</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-4">Connect</h4>
-                        <div class="flex space-x-4">
-                            <a href="#" class="text-gray-400 hover:text-white transition">
-                                <i data-feather="facebook"></i>
-                            </a>
-                            <a href="#" class="text-gray-400 hover:text-white transition">
-                                <i data-feather="linkedin"></i>
-                            </a>
-                            <a href="#" class="text-gray-400 hover:text-white transition">
-                                <i data-feather="twitter"></i>
-                            </a>
-                        </div>
-                        <div class="mt-4 space-y-2">
-                            <div class="flex items-center">
-                                <i data-feather="mail" class="text-gray-400 mr-2 w-4"></i>
-                                <span class="text-gray-400 text-sm">tanjil@rozainternational.com</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i data-feather="mail" class="text-gray-400 mr-2 w-4"></i>
-                                <span class="text-gray-400 text-sm">tanjilcrop@gmail.com</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i data-feather="phone" class="text-gray-400 mr-2 w-4"></i>
-                                <span class="text-gray-400 text-sm">+8801970026390</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="https://wa.me/8801970026390?text=Hello%20Roza%20International,%20I%20would%20like%20to%20request%20an%20indent%20quote." target="_blank" 
+                       class="flex items-center space-x-2 p-2.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 font-semibold text-xs active:scale-95 transition">
+                        <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+                        <span class="truncate">WhatsApp</span>
+                    </a>
+                    <a href="tel:+8801970026390" 
+                       class="flex items-center space-x-2 p-2.5 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-300 font-semibold text-xs active:scale-95 transition">
+                        <i data-lucide="phone-call" class="w-4 h-4 text-blue-400 flex-shrink-0"></i>
+                        <span class="truncate">Direct Call</span>
+                    </a>
+                    <a href="mailto:info@rozainternational.com" 
+                       class="flex items-center space-x-2 p-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-semibold text-xs active:scale-95 transition">
+                        <i data-lucide="mail" class="w-4 h-4 text-brand-gold flex-shrink-0"></i>
+                        <span class="truncate">Email Desk</span>
+                    </a>
+                    <a href="#contact" 
+                       class="flex items-center space-x-2 p-2.5 rounded-xl bg-brand-gold/20 border border-brand-gold/30 text-brand-gold font-semibold text-xs active:scale-95 transition">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-brand-gold flex-shrink-0"></i>
+                        <span class="truncate">Submit RFQ</span>
+                    </a>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-                <p class="text-gray-400 text-sm mb-4 md:mb-0">
-                    2025 Roza International. All rights reserved.
-                </p>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a>
-                    <a href="#" class="text-gray-400 hover:text-white text-sm">Terms of Service</a>
+
+            <!-- Footer Columns: Accordion on Mobile, 4-Col Grid on Desktop -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-8 pb-8 lg:pb-10 border-b border-white/10">
+                
+                <!-- Col 1: Logo & Mission -->
+                <div class="space-y-3 pb-3 lg:pb-0 border-b border-white/10 lg:border-b-0">
+                    <a href="#home" class="inline-block">
+                        <img src="static/logo.png" 
+                             alt="Roza International" 
+                             class="h-9 sm:h-10 w-auto object-contain brightness-0 invert opacity-95">
+                    </a>
+                    <p class="text-xs text-gray-400 leading-relaxed max-w-xs">
+                        Global indenting and trading solutions for paper, polymer, yarn, ink, and industrial supplies since 2018. Connect with trusted manufacturers worldwide.
+                    </p>
+                    <div class="flex items-center space-x-2 text-[11px] text-gray-400 pt-1">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-gold"></i>
+                        <span>Accredited Global Indenting Agency</span>
+                    </div>
+                </div>
+
+                <!-- Col 2: Quick Links (Accordion on Mobile) -->
+                <div class="border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
+                    <button class="footer-acc-trigger lg:pointer-events-none w-full flex items-center justify-between py-2 lg:py-0 text-left" onclick="toggleFooterAccordion(this)">
+                        <h4 class="font-display font-bold text-xs uppercase tracking-wider text-brand-gold">Quick Links</h4>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 lg:hidden transition-transform duration-200"></i>
+                    </button>
+                    <div class="footer-acc-body hidden lg:block mt-3 space-y-2 text-xs text-gray-400">
+                        <a href="#home" class="block hover:text-white transition py-0.5">Home Overview</a>
+                        <a href="#about" class="block hover:text-white transition py-0.5">About Us</a>
+                        <a href="#products" class="block hover:text-white transition py-0.5">Products Catalog</a>
+                        <a href="#process" class="block hover:text-white transition py-0.5">Indenting Process</a>
+                        <a href="#partners" class="block hover:text-white transition py-0.5">Global Partners</a>
+                        <a href="#gallery" class="block hover:text-white transition py-0.5">Operations Gallery</a>
+                        <a href="#testimonials" class="block hover:text-white transition py-0.5">Testimonials</a>
+                        <a href="#faq" class="block hover:text-white transition py-0.5">Trade FAQ</a>
+                    </div>
+                </div>
+
+                <!-- Col 3: Products (Accordion on Mobile) -->
+                <div class="border-b border-white/10 lg:border-b-0 pb-3 lg:pb-0">
+                    <button class="footer-acc-trigger lg:pointer-events-none w-full flex items-center justify-between py-2 lg:py-0 text-left" onclick="toggleFooterAccordion(this)">
+                        <h4 class="font-display font-bold text-xs uppercase tracking-wider text-brand-gold">Product Lines</h4>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 lg:hidden transition-transform duration-200"></i>
+                    </button>
+                    <div class="footer-acc-body hidden lg:block mt-3 space-y-2 text-xs text-gray-400">
+                        <a href="#products" class="block hover:text-white transition py-0.5">Paper & Pulp</a>
+                        <a href="#products" class="block hover:text-white transition py-0.5">Polymers & Resins</a>
+                        <a href="#products" class="block hover:text-white transition py-0.5">Textile & Industrial Yarn</a>
+                        <a href="#products" class="block hover:text-white transition py-0.5">Ink, Glue & Gum</a>
+                        <a href="#products" class="block hover:text-white transition py-0.5">Machinery & Packaging</a>
+                        <a href="#products" class="block hover:text-white transition py-0.5">Label Tag & Leather</a>
+                    </div>
+                </div>
+
+                <!-- Col 4: Contact (Accordion on Mobile) -->
+                <div class="pb-1 lg:pb-0">
+                    <button class="footer-acc-trigger lg:pointer-events-none w-full flex items-center justify-between py-2 lg:py-0 text-left" onclick="toggleFooterAccordion(this)">
+                        <h4 class="font-display font-bold text-xs uppercase tracking-wider text-brand-gold">Head Office & Contact</h4>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 lg:hidden transition-transform duration-200"></i>
+                    </button>
+                    <div class="footer-acc-body hidden lg:block mt-3 space-y-2.5 text-xs text-gray-400">
+                        <div>
+                            <span class="text-white font-medium block">Head Office:</span>
+                            <span>49/1/B, Purana Paltan Lane, Dhaka, Bangladesh</span>
+                        </div>
+                        <div>
+                            <span class="text-white font-medium block">Phone / WhatsApp:</span>
+                            <a href="tel:+8801970026390" class="text-brand-gold hover:underline font-mono">+880 1970 026390</a>
+                        </div>
+                        <div>
+                            <span class="text-white font-medium block">Emails:</span>
+                            <a href="mailto:info@rozainternational.com" class="hover:text-white block">info@rozainternational.com</a>
+                            <a href="mailto:tanjilisohel@gmail.com" class="hover:text-white block">tanjilisohel@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-3">
+                <p class="text-center sm:text-left">&copy; 2018–2026 Roza International. All rights reserved.</p>
+                <div class="flex items-center space-x-5">
+                    <a href="#home" class="inline-flex items-center space-x-1 text-gray-400 hover:text-white transition">
+                        <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+                        <span>Back to Top</span>
+                    </a>
+                    <a href="#contact" class="text-brand-gold hover:underline font-semibold">
+                        Request a Quote
+                    </a>
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- Smart Persistent Mobile Action Bar (Sticky at Bottom on Phones Only) -->
+    <nav aria-label="Mobile Quick Actions" class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy-950/95 backdrop-blur-md border-t border-white/10 px-4 py-2.5 shadow-2xl">
+        <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
+            <!-- Call Action -->
+            <a href="tel:+8801970026390" 
+               class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-white/5 active:bg-white/15 text-gray-200 transition">
+                <i data-lucide="phone-call" class="w-4 h-4 text-blue-400 mb-0.5"></i>
+                <span class="text-[10px] font-semibold tracking-tight">Call Desk</span>
+            </a>
+
+            <!-- WhatsApp Action (Prominent) -->
+            <a href="https://wa.me/8801970026390?text=Hello%20Roza%20International,%20I%20would%20like%20to%20inquire%20about%20indenting%20pricing." 
+               target="_blank" 
+               class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-emerald-600 active:bg-emerald-500 text-white font-bold transition shadow-lg shadow-emerald-950/50">
+                <i data-lucide="message-circle" class="w-4 h-4 mb-0.5"></i>
+                <span class="text-[10px] font-bold tracking-tight">WhatsApp</span>
+            </a>
+
+            <!-- RFQ Quote Action -->
+            <a href="#contact" 
+               class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-brand-gold/20 active:bg-brand-gold/30 text-brand-gold border border-brand-gold/30 transition">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-brand-gold mb-0.5"></i>
+                <span class="text-[10px] font-semibold tracking-tight">Get Quote</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Floating WhatsApp Button (Desktop Only) -->
+    <aside aria-label="WhatsApp Contact" class="hidden lg:block fixed bottom-6 right-6 z-50">
+        <a href="https://wa.me/8801970026390?text=Hello%20Roza%20International,%20I%20would%20like%20to%20inquire%20about%20indenting%20pricing." 
+           target="_blank" 
+           aria-label="Direct WhatsApp Chat"
+           class="bg-emerald-600 hover:bg-emerald-500 text-white w-13 h-13 p-3.5 rounded-full shadow-2xl flex items-center justify-center group transition-all duration-200 hover:scale-110 border-2 border-white">
+            <i data-lucide="message-circle" class="w-6 h-6"></i>
+        </a>
+    </aside>
+
+    <!-- Scripts -->
     <script>
-        // Performance optimizations
-        document.addEventListener('DOMContentLoaded', function() {
-                        // Video Player Controls for About Section
-            const video = document.getElementById('aboutVideo');
-            const videoOverlay = document.getElementById('videoOverlay');
-            const videoControls = document.getElementById('videoControls');
-            const playPauseBtn = document.getElementById('playPause');
-            const muteUnmuteBtn = document.getElementById('muteUnmute');
+        // Initialize Lucide Icons
+        lucide.createIcons();
 
-            if (video && videoOverlay) {
-                videoOverlay.addEventListener('click', () => {
-                    video.play();
-                    videoOverlay.style.display = 'none';
-                    videoControls.classList.remove('hidden');
-                });
-                
-                video.addEventListener('pause', () => {
-                    videoOverlay.style.display = 'flex';
-                });
-                
-                video.addEventListener('ended', () => {
-                    videoOverlay.style.display = 'flex';
-                    videoControls.classList.add('hidden');
-                });
-                
-                if (playPauseBtn) {
-                    playPauseBtn.addEventListener('click', () => {
-                        if (video.paused) {
-                            video.play();
-                            playPauseBtn.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-                        } else {
-                            video.pause();
-                            playPauseBtn.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-                        }
-                    });
-                }
-                
-                if (muteUnmuteBtn) {
-                    muteUnmuteBtn.addEventListener('click', () => {
-                        video.muted = !video.muted;
-                        if (video.muted) {
-                            muteUnmuteBtn.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`;
-                        } else {
-                            muteUnmuteBtn.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
-                        }
-                    });
-                }
-            }
-            // Hide loading screen
-            const loading = document.getElementById('loading');
-            setTimeout(() => {
-                loading.style.opacity = '0';
-                setTimeout(() => loading.style.display = 'none', 300);
-            }, 500);
-            
-            // Initialize Swiper slider
-            const testimonialSlider = new Swiper('.testimonial-slider', {
-                loop: true,
-                autoplay: {
-                    delay: 5000,
-                    disableOnInteraction: false,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-            });
+        // Mobile Menu Toggle
+        const mobileNavToggle = document.getElementById('mobileNavToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
 
-            // Initialize AOS animations
-            AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
-                once: true
-            });
-
-            // Initialize Feather icons
-            feather.replace();
-
-            // Vanta.js background for hero section
-            VANTA.NET({
-                el: "#vanta-bg",
-                mouseControls: true,
-                touchControls: true,
-                gyroControls: false,
-                minHeight: 200.00,
-                minWidth: 200.00,
-                scale: 1.00,
-                scaleMobile: 1.00,
-                color: 0x00508F,
-                backgroundColor: 0x101018,
-                points: 12.00,
-                maxDistance: 22.00,
-                spacing: 18.00
-            });
-
-            // Add slider styles
-            const style = document.createElement('style');
-            style.textContent = `
-                .swiper-button-next, .swiper-button-prev {
-                    color: #00508F;
-                    background: rgba(255,255,255,0.8);
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                .swiper-button-next:after, .swiper-button-prev:after {
-                    font-size: 1rem;
-                }
-                .swiper-pagination-bullet-active {
-                    background: #00508F;
-                }
-            `;
-            document.head.appendChild(style);
-
-            // Modern Floating Header Logic
-            const nav = document.getElementById('mainNav');
-            const mobileMenuButton = document.querySelector('.mobile-menu-button');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            let lastScrollTop = 0;
-            let scrollTimeout;
-
-            // Mobile menu toggle
-            mobileMenuButton.addEventListener('click', () => {
+        if (mobileNavToggle && mobileMenu) {
+            mobileNavToggle.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
-                mobileMenu.classList.toggle('active');
-                
-                // Toggle hamburger animation
-                const spans = mobileMenuButton.querySelectorAll('span');
-                if (mobileMenu.classList.contains('hidden')) {
-                    spans[0].classList.remove('translate-y-1.5', 'rotate-45');
-                    spans[1].classList.remove('opacity-0');
-                    spans[2].classList.remove('-translate-y-1.5', '-rotate-45');
-                } else {
-                    spans[0].classList.add('translate-y-1.5', 'rotate-45');
-                    spans[1].classList.add('opacity-0');
-                    spans[2].classList.add('-translate-y-1.5', '-rotate-45');
-                }
             });
 
-            // Header scroll effects
-            window.addEventListener('scroll', function() {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                
-                // Show/hide header on scroll direction
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    // Scrolling down
-                    nav.classList.add('hidden-header');
-                    nav.classList.remove('scrolled-up');
-                } else {
-                    // Scrolling up
-                    nav.classList.remove('hidden-header');
-                    nav.classList.add('scrolled-up');
-                }
-                
-                lastScrollTop = scrollTop;
-                
-                // Add scrolled class for background change
-                if (scrollTop > 50) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
-                }
-                
-                // Loading bar animation
-                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrollPercentage = (scrollTop / scrollHeight) * 100;
-                document.querySelector('.loading-bar').style.width = scrollPercentage + '%';
-                
-                // Debounce scroll events for performance
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    // Smooth transition after stopping scroll
-                    nav.classList.remove('scrolled-up');
-                }, 150);
+            mobileNavItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
             });
+        }
 
-            // Smooth scrolling for anchor links with header offset
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        // Close mobile menu if open
-                        if (!mobileMenu.classList.contains('hidden')) {
-                            mobileMenu.classList.add('hidden');
-                            mobileMenu.classList.remove('active');
-                            const spans = mobileMenuButton.querySelectorAll('span');
-                            spans[0].classList.remove('translate-y-1.5', 'rotate-45');
-                            spans[1].classList.remove('opacity-0');
-                            spans[2].classList.remove('-translate-y-1.5', '-rotate-45');
-                        }
-                        
-                        // Calculate offset based on header height
-                        const headerHeight = nav.offsetHeight;
-                        const targetPosition = targetElement.offsetTop - headerHeight;
-                        
-                        window.scrollTo({
-                            top: targetPosition,
-                            behavior: 'smooth'
-                        });
+        // About Video Control
+        const aboutVideo = document.getElementById('aboutVideo');
+        const videoOverlay = document.getElementById('videoOverlay');
+
+        if (aboutVideo && videoOverlay) {
+            videoOverlay.addEventListener('click', () => {
+                aboutVideo.play();
+                videoOverlay.style.display = 'none';
+                aboutVideo.setAttribute('controls', 'true');
+            });
+        }
+
+        // Product Catalog Category Filtering
+        const filterBtns = document.querySelectorAll('#productFilterButtons .filter-btn');
+        const productItems = document.querySelectorAll('.product-item');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-brand-blue', 'text-white');
+                    b.classList.add('bg-white', 'text-gray-700');
+                });
+                btn.classList.add('bg-brand-blue', 'text-white');
+                btn.classList.remove('bg-white', 'text-gray-700');
+
+                const filter = btn.getAttribute('data-filter');
+
+                productItems.forEach(item => {
+                    const category = item.getAttribute('data-category');
+                    if (filter === 'all' || category === filter) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
                     }
                 });
             });
-
-            // Add hover effect to navigation on page load
-            window.addEventListener('load', () => {
-                // Add subtle pulse animation to CTA button
-                const ctaButton = document.querySelector('.cta-button');
-                if (ctaButton) {
-                    setInterval(() => {
-                        ctaButton.classList.add('pulse');
-                        setTimeout(() => {
-                            ctaButton.classList.remove('pulse');
-                        }, 1000);
-                    }, 5000);
-                }
-            });
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
-                    mobileMenu.classList.add('hidden');
-                    mobileMenu.classList.remove('active');
-                    const spans = mobileMenuButton.querySelectorAll('span');
-                    spans[0].classList.remove('translate-y-1.5', 'rotate-45');
-                    spans[1].classList.remove('opacity-0');
-                    spans[2].classList.remove('-translate-y-1.5', '-rotate-45');
-                }
-            });
-
-            // Form submission
-            const contactForm = document.getElementById('contactForm');
-            if (contactForm) {
-                contactForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    alert('Thank you for your message! We will contact you soon.');
-                    contactForm.reset();
-                });
-            }
-
-            // Performance monitoring
-            if ('performance' in window) {
-                window.addEventListener('load', () => {
-                    const perfData = window.performance.timing;
-                    const loadTime = perfData.loadEventEnd - perfData.navigationStart;
-                    console.log(`Page loaded in ${loadTime}ms`);
-                });
-            }
         });
 
-        // Add CSS for pulse animation
-        const pulseStyle = document.createElement('style');
-        pulseStyle.textContent = `
-            @keyframes pulse {
-                0% { box-shadow: 0 4px 20px rgba(0, 80, 143, 0.3); }
-                50% { box-shadow: 0 4px 30px rgba(0, 80, 143, 0.6); }
-                100% { box-shadow: 0 4px 20px rgba(0, 80, 143, 0.3); }
+        // Quick Quote Selection from Product Card
+        function selectProductForQuote(categoryName) {
+            const selectEl = document.getElementById('productCategory');
+            if (selectEl) {
+                for (let i = 0; i < selectEl.options.length; i++) {
+                    if (selectEl.options[i].text.toLowerCase().includes(categoryName.toLowerCase())) {
+                        selectEl.selectedIndex = i;
+                        break;
+                    }
+                }
             }
-            .pulse {
-                animation: pulse 1s ease-in-out;
+
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+                const formCard = document.querySelector('#contactForm');
+                if (formCard) {
+                    formCard.classList.add('ring-2', 'ring-brand-blue');
+                    setTimeout(() => formCard.classList.remove('ring-2', 'ring-brand-blue'), 1400);
+                }
             }
+        }
+
+        // Mobile Footer Accordion Toggle
+        function toggleFooterAccordion(button) {
+            if (window.innerWidth >= 1024) return; // Desktop remains expanded
+            const content = button.nextElementSibling;
+            const chevron = button.querySelector('[data-lucide="chevron-down"]');
             
-            /* Smooth transitions for header */
-            nav {
-                will-change: transform, background-color, backdrop-filter;
+            if (content) {
+                const isHidden = content.classList.contains('hidden');
+                
+                // Close other mobile footer accordions for neatness
+                document.querySelectorAll('.footer-acc-body').forEach(el => {
+                    if (window.innerWidth < 1024) el.classList.add('hidden');
+                });
+                document.querySelectorAll('.footer-acc-trigger [data-lucide="chevron-down"]').forEach(ch => {
+                    ch.style.transform = 'rotate(0deg)';
+                });
+
+                if (isHidden) {
+                    content.classList.remove('hidden');
+                    if (chevron) chevron.style.transform = 'rotate(180deg)';
+                }
             }
-            
-            /* Performance optimizations */
-            .floating {
-                will-change: transform;
-            }
-        `;
-        document.head.appendChild(pulseStyle);
+        }
+
+        // Form Submit
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('name').value;
+                const product = document.getElementById('productCategory').value;
+
+                alert(`Thank you, ${name}!\n\nYour quotation request for "${product || 'Industrial Products'}" has been submitted successfully. Our trade desk will contact you within 24 hours with direct mill quotes.`);
+                contactForm.reset();
+            });
+        }
     </script>
 </body>
 </html>
