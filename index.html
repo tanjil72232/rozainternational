@@ -81,14 +81,10 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Hero Background with Real Banner Image & Subtle Overlay */
+        /* Hero Section Base Background */
         .hero-section {
             background-color: #071A2E;
-            background-image: 
-                linear-gradient(180deg, rgba(7, 26, 46, 0.88) 0%, rgba(10, 37, 64, 0.94) 100%),
-                url('static/herobn.webp');
-            background-size: cover;
-            background-position: center;
+            position: relative;
         }
 
         .gold-gradient-text {
@@ -140,6 +136,48 @@
             background-size: 28px 28px;
             background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
                               linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        }
+
+        /* Hero Upper Pattern Highlight & Ambient Glow */
+        .hero-upper-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 65%;
+            background-image: 
+                radial-gradient(rgba(243, 210, 126, 0.24) 1.2px, transparent 1.2px),
+                linear-gradient(to right, rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+            background-size: 32px 32px, 32px 32px, 32px 32px;
+            background-position: 0 0, 0 0, 0 0;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 45%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 45%, transparent 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .hero-top-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 280px;
+            background: radial-gradient(ellipse 95% 75% at 50% -15%, rgba(0, 102, 204, 0.45) 0%, rgba(197, 160, 89, 0.22) 45%, transparent 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-top-border-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, rgba(197, 160, 89, 0.6) 25%, rgba(243, 210, 126, 0.95) 50%, rgba(0, 102, 204, 0.7) 75%, transparent 100%);
+            box-shadow: 0 0 16px rgba(243, 210, 126, 0.6);
+            pointer-events: none;
+            z-index: 3;
         }
     </style>
 </head>
@@ -224,9 +262,40 @@
     <!-- Header Spacer -->
     <div class="h-16 sm:h-[70px]"></div>
 
-    <!-- Hero Section -->
-    <section id="home" class="relative hero-section bg-grid-overlay text-white py-14 sm:py-20 lg:py-24 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <!-- Hero Section with Background Shipment Sea Video -->
+    <section id="home" class="relative hero-section text-white pt-8 pb-14 sm:py-20 lg:py-24 overflow-hidden min-h-[580px] sm:min-h-0 flex items-center">
+        
+        <!-- Background Video with Subtle Blur, Upper Highlight & Mobile Framing -->
+        <div class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+            <video id="heroVideo" 
+                   autoplay 
+                   loop 
+                   muted 
+                   playsinline 
+                   webkit-playsinline 
+                   preload="auto" 
+                   disablePictureInPicture
+                   class="w-full h-full object-cover object-[70%_center] sm:object-center filter blur-[1.5px] sm:blur-[2px] scale-105 brightness-[0.70] sm:brightness-[0.74] contrast-[1.05]">
+                <source src="static/shipment-sea.mp4" type="video/mp4">
+            </video>
+            
+            <!-- Upper Ambient Light Glow Highlight -->
+            <div class="hero-top-glow"></div>
+
+            <!-- Upper Pattern Highlight (Tech / Maritime Coordinate Grid) -->
+            <div class="hero-upper-pattern"></div>
+
+            <!-- Upper Border Accent Glow Line -->
+            <div class="hero-top-border-glow"></div>
+
+            <!-- Contrast Gradient Overlay ensuring 100% white/gold text legibility on Mobile & Desktop -->
+            <div class="absolute inset-0 bg-navy-950/70 bg-gradient-to-b sm:bg-gradient-to-r from-navy-950/95 via-navy-950/80 to-navy-950/75"></div>
+            
+            <!-- Subtle Grid Texture Accent -->
+            <div class="absolute inset-0 bg-grid-overlay opacity-25"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
             <div class="grid lg:grid-cols-12 gap-10 items-center">
                 
                 <!-- Left Content -->
@@ -245,31 +314,31 @@
                         Premium sourcing for Paper, Polymer, Yarn, and Industrial Inks. Connecting world-class manufacturers with domestic markets with direct mill proforma invoices and LC execution.
                     </p>
 
-                    <!-- Action CTAs -->
-                    <div class="flex flex-wrap gap-3 pt-2">
-                        <a href="#contact" class="btn-gold px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold shadow-md flex items-center gap-2">
+                    <!-- Action CTAs: Full-width friendly on mobile -->
+                    <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-2">
+                        <a href="#contact" class="btn-gold px-5 py-3 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-2">
                             <i data-lucide="file-check" class="w-4 h-4 text-navy-950"></i>
                             <span>Get Free Quote (RFQ)</span>
                         </a>
-                        <a href="#products" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-2">
+                        <a href="#products" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-3 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2">
                             <i data-lucide="layout-grid" class="w-4 h-4 text-brand-gold"></i>
                             <span>Explore Products</span>
                         </a>
                     </div>
 
-                    <!-- Trust Stats Counter -->
-                    <div class="pt-5 border-t border-white/10 grid grid-cols-3 gap-4 max-w-lg">
+                    <!-- Trust Stats Counter: Clean grid for mobile -->
+                    <div class="pt-5 border-t border-white/10 grid grid-cols-3 gap-2 sm:gap-4 max-w-lg">
                         <div>
-                            <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">7+</div>
-                            <div class="text-xs text-gray-400 mt-0.5">Years Experience</div>
+                            <div class="font-display text-xl sm:text-3xl font-extrabold text-white">7+</div>
+                            <div class="text-[11px] sm:text-xs text-gray-300 mt-0.5">Years Experience</div>
                         </div>
                         <div>
-                            <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">50+</div>
-                            <div class="text-xs text-gray-400 mt-0.5">Global Partner Mills</div>
+                            <div class="font-display text-xl sm:text-3xl font-extrabold text-white">50+</div>
+                            <div class="text-[11px] sm:text-xs text-gray-300 mt-0.5">Global Partner Mills</div>
                         </div>
                         <div>
-                            <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">100%</div>
-                            <div class="text-xs text-gray-400 mt-0.5">LC & Trade Compliance</div>
+                            <div class="font-display text-xl sm:text-3xl font-extrabold text-white">100%</div>
+                            <div class="text-[11px] sm:text-xs text-gray-300 mt-0.5">LC & Trade Compliance</div>
                         </div>
                     </div>
                 </div>
@@ -1340,6 +1409,26 @@
 
                 alert(`Thank you, ${name}!\n\nYour quotation request for "${product || 'Industrial Products'}" has been submitted successfully. Our trade desk will contact you within 24 hours with direct mill quotes.`);
                 contactForm.reset();
+            });
+        }
+
+        // Mobile & Desktop Hero Video Autoplay Enforcer (No initial picture flash)
+        const heroVid = document.getElementById('heroVideo');
+        if (heroVid) {
+            heroVid.muted = true;
+            const startVideo = () => {
+                const playPromise = heroVid.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        heroVid.muted = true;
+                        heroVid.play().catch(() => {});
+                    });
+                }
+            };
+            startVideo();
+            // Fallback user interaction triggers for restrictive mobile power-saving modes
+            ['touchstart', 'touchend', 'scroll', 'click'].forEach(evt => {
+                window.addEventListener(evt, startVideo, { once: true, passive: true });
             });
         }
     </script>
