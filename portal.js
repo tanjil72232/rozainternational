@@ -837,21 +837,6 @@ function renderCleanOrderCard(order) {
     `;
 }
 
-            <!-- Card Bottom Bar: Quick Action Buttons -->
-            <div class="pt-2 border-t border-gray-100 flex items-center justify-between" onclick="event.stopPropagation()">
-                <button onclick="navigateToOrderDetail(${order.id})" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
-                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                    <span>View Full Details &amp; Products</span>
-                </button>
-                <button onclick="printOrderInvoiceLegacy(${order.id})" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold transition">
-                    <i data-lucide="printer" class="w-3.5 h-3.5 text-gray-600"></i>
-                    <span>Print Order</span>
-                </button>
-            </div>
-        </div>
-    `;
-}
-
 // Clean Dedicated Order Detail Page
 function renderOrderDetailPage(order) {
     const content = document.getElementById('customerPortalBody');
