@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Order Portal | Roza International</title>
+    <meta name="description" content="Official Customer Order Portal - Roza International. Track indenting orders, shipment statuses, specifications, and download order documents.">
+    <link rel="icon" type="image/x-icon" href="../static/favicon.ico">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#051321',
+                            900: '#071A2E',
+                            800: '#0A2540',
+                            700: '#0E3359',
+                        },
+                        brand: {
+                            blue: '#00508F',
+                            blueHover: '#003D6E',
+                            gold: '#C5A059',
+                            surface: '#F8FAFC',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', '"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 text-gray-900 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-blue selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3 group">
+                <img src="../static/logo.png" alt="Roza International" class="h-8 w-auto">
+                <span class="hidden sm:inline-block h-4 w-px bg-gray-300"></span>
+                <span class="hidden sm:inline-block text-xs font-bold text-gray-600 uppercase tracking-widest font-display">Customer Order Portal</span>
+            </a>
+            <div class="flex items-center space-x-3">
+                <a href="/" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-100 font-semibold text-xs transition">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    <span>Back to Website</span>
+                </a>
+                <button id="portalHeaderLogoutBtn" onclick="customerPortalLogout()" class="hidden inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 font-semibold text-xs transition">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        <div id="customerPortalBody" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 min-h-[500px]">
+            <!-- Injected by portal.js -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 Roza International. Indenting & Global Trade. All rights reserved.</p>
+            <p class="mt-1 text-gray-400">Dhaka, Bangladesh | Support Hotline: +880 1970 026390</p>
+        </div>
+    </footer>
+
+    <!-- Customer Portal Script -->
+    <script src="../portal.js?v=2.0.0"></script>
+    <script>
+        // Auto-initialize portal on dedicated page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = sessionStorage.getItem('roza_portal_cust');
+            if (saved) {
+                try {
+                    currentCustomer = JSON.parse(saved);
+                    renderPortalDashboard();
+                    return;
+                } catch (e) {}
+            }
+            renderPortalLogin();
+        });
+    </script>
+</body>
+</html>

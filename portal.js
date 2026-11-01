@@ -34,6 +34,8 @@ function customerPortalLogout() {
     currentCustomer = null;
     customerOrders = [];
     sessionStorage.removeItem('roza_portal_cust');
+    const headerLogout = document.getElementById('portalHeaderLogoutBtn');
+    if (headerLogout) headerLogout.classList.add('hidden');
     renderPortalLogin();
 }
 
@@ -138,6 +140,8 @@ async function handlePortalLogin(e) {
         // Login successful!
         currentCustomer = found;
         sessionStorage.setItem('roza_portal_cust', JSON.stringify(found));
+        const headerLogout = document.getElementById('portalHeaderLogoutBtn');
+        if (headerLogout) headerLogout.classList.remove('hidden');
         await renderPortalDashboard();
     } catch (err) {
         if (errBox) {
@@ -178,6 +182,8 @@ async function renderPortalDashboard() {
         ).sort((a, b) => (b.order_date || '').localeCompare(a.order_date || ''));
 
         renderOrdersList();
+        const headerLogout = document.getElementById('portalHeaderLogoutBtn');
+        if (headerLogout) headerLogout.classList.remove('hidden');
     } catch (err) {
         content.innerHTML = `
             <div class="p-6 text-center text-rose-600 bg-rose-50 rounded-xl">
@@ -452,6 +458,8 @@ async function submitCustomerNote(orderId) {
 
         alert('Your note has been saved and shared with Roza International!');
         renderOrdersList();
+        const headerLogout = document.getElementById('portalHeaderLogoutBtn');
+        if (headerLogout) headerLogout.classList.remove('hidden');
     } catch (err) {
         alert('Could not save note: ' + err.message);
     }
