@@ -106,25 +106,33 @@ async function handlePortalLogin(e) {
 
         // Match customer by phone or email
         const cleanIdent = identifier.toLowerCase().replace(/[^a-z0-9@.]/g, '');
-        const found = customers.find(c => {
+        const inputNum = identifier.replace(/[^0-9]/g, '');
+
+        const matchingCustomers = customers.filter(c => {
             const cPhone = (c.phone || '').replace(/[^0-9]/g, '');
             const cEmail = (c.email || '').toLowerCase().trim();
-            const inputNum = identifier.replace(/[^0-9]/g, '');
-            const phoneMatch = inputNum && (cPhone.endsWith(inputNum) || inputNum.endsWith(cPhone));
-            const emailMatch = cEmail && cEmail === cleanIdent;
+            const phoneMatch = inputNum.length >= 6 && (cPhone.endsWith(inputNum) || inputNum.endsWith(cPhone));
+            const emailMatch = cleanIdent.includes('@') && cEmail && cEmail === cleanIdent;
             return phoneMatch || emailMatch;
         });
 
-        if (!found) {
+        if (matchingCustomers.length === 0) {
             throw new Error('No customer account found with this phone number or email.');
         }
 
-        if (!found.portal_enabled) {
-            throw new Error('Portal access is not enabled for your account. Please contact Roza International support.');
-        }
-
-        if (found.portal_password !== password) {
-            throw new Error('Incorrect portal password. Please check and try again.');
+        // If multiple parties share the same phone/email (e.g. Sister concerns), prioritize the one with portal enabled or matching password
+        let found = matchingCustomers.find(c => Boolean(c.portal_enabled) && String(c.portal_password).trim() === password);
+        
+        if (!found) {
+            // Check if any has portal enabled
+            const enabledOne = matchingCustomers.find(c => Boolean(c.portal_enabled));
+            if (!enabledOne) {
+                throw new Error('Portal access is not enabled for your account. Please contact Roza International support.');
+            }
+            if (String(enabledOne.portal_password).trim() !== password) {
+                throw new Error('Incorrect portal password. Please check and try again.');
+            }
+            found = enabledOne;
         }
 
         // Login successful!
