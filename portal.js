@@ -262,30 +262,78 @@ function getOrderCashback(order) {
     return rate * qty;
 }
 
+// Helper to check part status
+function getPortalPartStatus(order, partNum = 1) {
+    if (order.status === 'Cancelled') return 'Cancelled';
+    if (partNum === 1) {
+        if (order.part1_delivered) return 'Delivered';
+        if (order.part1_shipped || order.status === 'Shipped' || order.status === 'Delivered') return 'Shipped';
+        if (order.status === 'Completed') return 'Confirmed';
+        return order.status || 'Pending';
+    }
+    if (partNum === 2) {
+        if (order.part2_delivered) return 'Delivered';
+        if (order.part2_shipped) return 'Shipped';
+        if (order.part2_status) return order.part2_status;
+        if (order.status === 'Shipped' && (order.part2_pending || !order.part2_shipped)) return 'In Production';
+        if (order.status === 'Delivered') return 'Delivered';
+        if (order.status === 'Completed') return 'Confirmed';
+        return order.status || 'Pending';
+    }
+    return order.status;
+}
+
 // Exact replication of Mac App getOrderUrgency
 function getOrderUrgency(order) {
-    if (order.status !== 'Shipped') return { level: 0, text: '', diff: null };
+    if (order.status === 'Delivered' || order.status === 'Cancelled') {
+        return { level: 0, text: '', diff: null };
+    }
+
     const now = new Date();
     const todayStr = now.toISOString().slice(0, 10);
     const todayDate = new Date(todayStr);
     todayDate.setHours(0, 0, 0, 0);
 
-    const targetDate = order.etd_1 || order.etd;
+    let targetDate = null;
+    let partLabel = 'ETA';
+
+    if (order.bl_count === 2) {
+        const p1Status = getPortalPartStatus(order, 1);
+        const p2Status = getPortalPartStatus(order, 2);
+
+        // If Part 1 is shipped and not delivered yet
+        if (p1Status === 'Shipped' && !order.part1_delivered && (order.etd_1 || order.etd)) {
+            targetDate = order.etd_1 || order.etd;
+            partLabel = 'Part 1 ETA';
+        } else if (p2Status === 'Shipped' && !order.part2_delivered && order.etd_2) {
+            targetDate = order.etd_2;
+            partLabel = 'Part 2 ETA';
+        } else if (!order.part1_delivered && (order.etd_1 || order.etd)) {
+            targetDate = order.etd_1 || order.etd;
+            partLabel = 'Part 1 ETA';
+        }
+    } else {
+        if (order.status === 'Shipped' || order.part1_shipped) {
+            targetDate = order.etd_1 || order.etd;
+            partLabel = 'ETA';
+        }
+    }
+
     if (!targetDate) return { level: 0, text: '', diff: null };
 
     const etaDate = new Date(targetDate);
     etaDate.setHours(0, 0, 0, 0);
     const diff = Math.ceil((etaDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diff <= 0) return { level: 3, text: 'ETA Arrived / Overdue', diff };
-    if (diff <= 7) return { level: 2, text: `${diff}D to ETA (Ship Approaching)`, diff };
-    return { level: 1, text: `${diff}D to ETA`, diff };
+    if (diff <= 0) return { level: 3, text: `${partLabel} Arrived / Overdue`, diff, partLabel };
+    if (diff <= 7) return { level: 2, text: `${partLabel}: ${diff}D to ETA (Ship Approaching)`, diff, partLabel };
+    return { level: 1, text: `${partLabel}: ${diff}D to ETA`, diff, partLabel };
 }
 
 // Exact replication of Mac App getUrgentOrders
 function getUrgentOrders(orders) {
     return orders
-        .filter(o => o.status === 'Shipped')
+        .filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled')
         .map(order => ({ order, urgency: getOrderUrgency(order) }))
         .filter(item => item.urgency.level >= 2)
         .sort((a, b) => b.urgency.level - a.urgency.level || (a.urgency.diff ?? 999) - (b.urgency.diff ?? 999));
@@ -601,6 +649,10 @@ function renderCleanOrderCard(order) {
     const factoryCustomer = isDifferentFactory ? allCustomers.find(c => c.id === Number(order.customer_id)) : currentCustomer;
     const factoryName = factoryCustomer?.name || currentCustomer.name;
 
+    const isTwoParts = order.bl_count === 2;
+    const p1Status = getPortalPartStatus(order, 1);
+    const p2Status = getPortalPartStatus(order, 2);
+
     return `
         <div onclick="navigateToOrderDetail(${order.id})" 
              class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-400 hover:shadow-xs transition cursor-pointer p-3.5 sm:p-4 select-none space-y-2.5">
@@ -609,9 +661,15 @@ function renderCleanOrderCard(order) {
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2">
                 <div class="flex items-center gap-2 flex-wrap">
                     <span class="font-extrabold text-sm text-gray-900 font-display">Order #${order.id}</span>
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${statusPill}">
-                        ${status}
-                    </span>
+                    ${isTwoParts ? `
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border border-amber-300 bg-amber-50 text-amber-800">
+                            ⚡ Split: Part 1 (${p1Status}) · Part 2 (${p2Status})
+                        </span>
+                    ` : `
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${statusPill}">
+                            ${status}
+                        </span>
+                    `}
                     ${isDifferentFactory ? `
                         <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
                             Factory: ${factoryName}
@@ -638,16 +696,35 @@ function renderCleanOrderCard(order) {
                 </div>
 
                 <!-- Col 2: Shipment Details (ETD / ETA) -->
-                <div class="space-y-0.5 sm:border-l sm:border-gray-100 sm:pl-3">
-                    <p class="text-gray-500">ETD (Shipment): <strong class="text-gray-900">${order.shipment_date_1 || order.shipment_date || 'N/A'}</strong></p>
-                    <p class="text-gray-500">ETA (Arrival): <strong class="text-blue-700 font-bold">${order.etd_1 || order.etd || 'N/A'}</strong></p>
-                    ${order.bl1 ? `<p class="text-gray-500">BL No: <strong class="text-gray-800 font-mono">${order.bl1}</strong></p>` : ''}
+                <div class="space-y-1 sm:border-l sm:border-gray-100 sm:pl-3">
+                    ${isTwoParts ? `
+                        <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-0.5 text-[11px]">
+                            <div class="flex items-center justify-between font-bold text-gray-900">
+                                <span>Part 1 (${parseFloat(order.part1_qty) || 0} MT)</span>
+                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p1Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p1Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">${p1Status}</span>
+                            </div>
+                            <p class="text-gray-500">ETD: <strong class="text-gray-800">${order.shipment_date_1 || 'N/A'}</strong> · ETA: <strong class="text-blue-700">${order.etd_1 || 'N/A'}</strong></p>
+                            ${order.bl1 ? `<p class="text-gray-500">BL: <strong class="text-gray-700 font-mono">${order.bl1}</strong></p>` : ''}
+                        </div>
+                        <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-0.5 text-[11px] mt-1">
+                            <div class="flex items-center justify-between font-bold text-gray-900">
+                                <span>Part 2 (${parseFloat(order.part2_qty) || 0} MT)</span>
+                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p2Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p2Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">${p2Status}</span>
+                            </div>
+                            <p class="text-gray-500">ETD: <strong class="text-gray-800">${order.shipment_date_2 || 'N/A'}</strong> · ETA: <strong class="text-blue-700">${order.etd_2 || 'N/A'}</strong></p>
+                            ${order.bl2 ? `<p class="text-gray-500">BL: <strong class="text-gray-700 font-mono">${order.bl2}</strong></p>` : ''}
+                        </div>
+                    ` : `
+                        <p class="text-gray-500">ETD (Shipment): <strong class="text-gray-900">${order.shipment_date_1 || order.shipment_date || 'N/A'}</strong></p>
+                        <p class="text-gray-500">ETA (Arrival): <strong class="text-blue-700 font-bold">${order.etd_1 || order.etd || 'N/A'}</strong></p>
+                        ${order.bl1 ? `<p class="text-gray-500">BL No: <strong class="text-gray-800 font-mono">${order.bl1}</strong></p>` : ''}
+                    `}
                 </div>
 
                 <!-- Col 3: Quantity & Financials -->
                 <div class="space-y-0.5 sm:border-l sm:border-gray-100 sm:pl-3 flex flex-col justify-center sm:items-end text-left sm:text-right">
                     <div>
-                        <span class="text-xs text-gray-500">Quantity:</span> 
+                        <span class="text-xs text-gray-500">Total Quantity:</span> 
                         <strong class="text-xs sm:text-sm font-extrabold text-gray-900 ml-1">${qty.toFixed(2)} MT</strong>
                     </div>
                     <div>
@@ -803,17 +880,39 @@ function renderOrderDetailPage(order) {
             <!-- Shipment & Milestone Info Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div class="p-4 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
-                    <span class="text-[10px] font-bold uppercase text-gray-400">LC &amp; PI Details</span>
+                    <span class="text-[10px] font-bold uppercase text-gray-400">LC &amp; Reference Details</span>
                     <p><strong>LC Number:</strong> ${order.lc_no || 'Pending'}</p>
-                    <p><strong>PI 1:</strong> ${order.pi1 || 'N/A'} ${order.bl1 ? `· <strong>BL 1:</strong> ${order.bl1}` : ''}</p>
-                    ${order.bl_count === 2 ? `<p><strong>PI 2:</strong> ${order.pi2 || 'N/A'} ${order.bl2 ? `· <strong>BL 2:</strong> ${order.bl2}` : ''}</p>` : ''}
+                    <p><strong>PI 1:</strong> ${order.pi1 || 'N/A'}</p>
+                    ${order.bl_count === 2 ? `<p><strong>PI 2:</strong> ${order.pi2 || 'N/A'}</p>` : ''}
                 </div>
 
-                <div class="p-4 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
+                <div class="p-4 bg-white rounded-2xl border border-gray-200 space-y-2 text-xs shadow-xs">
                     <span class="text-[10px] font-bold uppercase text-gray-400">Shipment Milestones</span>
-                    <p><strong>ETD (Shipment):</strong> ${order.shipment_date_1 || order.shipment_date || 'N/A'}</p>
-                    <p><strong>ETA (Arrival Date):</strong> <span class="font-bold text-blue-700">${order.etd_1 || order.etd || 'N/A'}</span></p>
-                    <p><strong>DHL Express:</strong> ${order.dhl_tracking_1 || order.dhl_tracking || 'N/A'}</p>
+                    ${order.bl_count === 2 ? `
+                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+                            <div class="flex items-center justify-between font-bold text-gray-900">
+                                <span>Part 1 (${parseFloat(order.part1_qty) || 0} MT)</span>
+                                <span class="text-[9px] uppercase px-1.5 py-0.5 rounded ${getPortalPartStatus(order, 1) === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : getPortalPartStatus(order, 1) === 'Shipped' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">${getPortalPartStatus(order, 1)}</span>
+                            </div>
+                            <p><strong>ETD:</strong> ${order.shipment_date_1 || 'N/A'} · <strong>ETA:</strong> <span class="font-bold text-blue-700">${order.etd_1 || 'N/A'}</span></p>
+                            ${order.bl1 ? `<p><strong>BL No:</strong> <span class="font-mono text-gray-800">${order.bl1}</span></p>` : ''}
+                            ${order.dhl_tracking_1 ? `<p><strong>DHL:</strong> ${order.dhl_tracking_1}</p>` : ''}
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1 mt-1">
+                            <div class="flex items-center justify-between font-bold text-gray-900">
+                                <span>Part 2 (${parseFloat(order.part2_qty) || 0} MT)</span>
+                                <span class="text-[9px] uppercase px-1.5 py-0.5 rounded ${getPortalPartStatus(order, 2) === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : getPortalPartStatus(order, 2) === 'Shipped' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">${getPortalPartStatus(order, 2)}</span>
+                            </div>
+                            <p><strong>ETD:</strong> ${order.shipment_date_2 || 'N/A'} · <strong>ETA:</strong> <span class="font-bold text-blue-700">${order.etd_2 || 'N/A'}</span></p>
+                            ${order.bl2 ? `<p><strong>BL No:</strong> <span class="font-mono text-gray-800">${order.bl2}</span></p>` : ''}
+                            ${order.dhl_tracking_2 ? `<p><strong>DHL:</strong> ${order.dhl_tracking_2}</p>` : ''}
+                        </div>
+                    ` : `
+                        <p><strong>ETD (Shipment):</strong> ${order.shipment_date_1 || order.shipment_date || 'N/A'}</p>
+                        <p><strong>ETA (Arrival Date):</strong> <span class="font-bold text-blue-700">${order.etd_1 || order.etd || 'N/A'}</span></p>
+                        ${order.bl1 ? `<p><strong>BL No:</strong> <span class="font-mono text-gray-800">${order.bl1}</span></p>` : ''}
+                        <p><strong>DHL Express:</strong> ${order.dhl_tracking_1 || order.dhl_tracking || 'N/A'}</p>
+                    `}
                 </div>
 
                 <div class="p-4 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
