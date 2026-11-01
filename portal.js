@@ -8,7 +8,8 @@ let allCustomers = [];
 let allProducts = [];
 let allSuppliers = [];
 let searchQuery = '';
-let activeTab = 'ALL'; // 'ALL', 'Pending', 'In Production', 'Shipped', 'Delivered'
+let searchScope = 'all'; // 'all' | 'lc' | 'pi' | 'product' | 'supplier'
+let activeFilter = 'all'; // 'all' | 'Pending' | 'In Production' | 'Shipped' | 'Delivered'
 let currentViewingOrderId = null;
 
 // Company info for invoice/memo
@@ -170,7 +171,7 @@ async function renderPortalDashboard() {
     content.innerHTML = `
         <div class="py-16 text-center">
             <div class="inline-block animate-spin text-3xl mb-3">⏳</div>
-            <p class="text-sm font-semibold text-gray-700">Loading your orders & shipments securely...</p>
+            <p class="text-sm font-semibold text-gray-700">Loading orders & shipments securely...</p>
         </div>
     `;
 
@@ -261,6 +262,7 @@ function getOrderCashback(order) {
     return rate * qty;
 }
 
+// Exact replication of Mac App getOrderUrgency
 function getOrderUrgency(order) {
     if (order.status !== 'Shipped') return { level: 0, text: '', diff: null };
     const now = new Date();
@@ -276,28 +278,17 @@ function getOrderUrgency(order) {
     const diff = Math.ceil((etaDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
 
     if (diff <= 0) return { level: 3, text: 'ETA Arrived / Overdue', diff };
-    if (diff <= 7) return { level: 2, text: `${diff}D to ETA`, diff };
+    if (diff <= 7) return { level: 2, text: `${diff}D to ETA (Ship Approaching)`, diff };
     return { level: 1, text: `${diff}D to ETA`, diff };
 }
 
-function getShipmentAlerts(orders) {
-    const alerts = [];
-    orders.forEach(order => {
-        if (order.status !== 'Shipped') return;
-        const urgency = getOrderUrgency(order);
-        if (urgency.level >= 2) {
-            alerts.push({
-                orderId: order.id,
-                type: urgency.level === 3 ? 'danger' : 'warning',
-                badge: urgency.text,
-                days: urgency.diff,
-                etaDate: order.etd_1 || order.etd,
-                bl: order.bl1 || order.bl_no,
-                msg: urgency.level === 3 ? `Shipment reached scheduled ETA date!` : `Ship is approaching in ${urgency.diff} days.`
-            });
-        }
-    });
-    return alerts;
+// Exact replication of Mac App getUrgentOrders
+function getUrgentOrders(orders) {
+    return orders
+        .filter(o => o.status === 'Shipped')
+        .map(order => ({ order, urgency: getOrderUrgency(order) }))
+        .filter(item => item.urgency.level >= 2)
+        .sort((a, b) => b.urgency.level - a.urgency.level || (a.urgency.diff ?? 999) - (b.urgency.diff ?? 999));
 }
 
 function checkAndDispatchNotifications(orders) {
@@ -317,14 +308,14 @@ function checkAndDispatchNotifications(orders) {
     }
     localStorage.setItem(knownKey, JSON.stringify(orders.map(o => o.id)));
 
-    const alerts = getShipmentAlerts(orders);
-    alerts.forEach(a => {
-        const notifKey = `ship_alert_${currentCustomer.id}_${a.orderId}_${todayStr}`;
+    const urgent = getUrgentOrders(orders);
+    urgent.forEach(({ order, urgency }) => {
+        const notifKey = `ship_alert_${currentCustomer.id}_${order.id}_${todayStr}`;
         if (!localStorage.getItem(notifKey)) {
             localStorage.setItem(notifKey, '1');
             triggerBrowserNotification(
-                a.days <= 0 ? `🚨 Shipment Arrival: Order #${a.orderId}` : `🚢 Ship Approaching: Order #${a.orderId}`,
-                a.msg
+                urgency.level === 3 ? `🚨 ETA Arrived: Order #${order.id}` : `🚢 Ship Approaching: Order #${order.id}`,
+                `Order #${order.id} (PI: ${order.pi1 || order.pi_no || 'N/A'}) - ${urgency.text}`
             );
         }
     });
@@ -384,30 +375,35 @@ function renderOrdersList() {
     const content = document.getElementById('customerPortalBody');
     if (!content) return;
 
-    // Filter by search query & active status tab
+    // Filter by search query & scope & status filter
     const q = searchQuery.toLowerCase().trim();
     const filteredOrders = customerOrders.filter(order => {
-        // Tab filter
-        if (activeTab !== 'ALL') {
-            if (activeTab === 'In Production') {
+        // Status filter
+        if (activeFilter !== 'all') {
+            if (activeFilter === 'In Production') {
                 if (order.status !== 'In Production' && order.status !== 'Confirmed') return false;
-            } else if (order.status !== activeTab) {
+            } else if (order.status !== activeFilter) {
                 return false;
             }
         }
 
-        // Search query
+        // Search scope logic matching Mac app
         if (!q) return true;
         const customerName = (allCustomers.find(c => c.id === order.customer_id)?.name || '').toLowerCase();
         const supplierName = (allSuppliers.find(s => s.id === order.supplier_id)?.name || '').toLowerCase();
-        const idMatch = String(order.id).includes(q);
-        const lcMatch = (order.lc_no || '').toLowerCase().includes(q);
-        const pi1Match = (order.pi1 || order.pi_no || '').toLowerCase().includes(q);
-        const pi2Match = (order.pi2 || '').toLowerCase().includes(q);
-        const blMatch = (order.bl1 || order.bl2 || order.bl_no || '').toLowerCase().includes(q);
+        const lcNo = (order.lc_no || '').toLowerCase();
+        const pi1 = (order.pi1 || order.pi_no || '').toLowerCase();
+        const pi2 = (order.pi2 || '').toLowerCase();
+        const idStr = String(order.id);
         const prodMatch = (order.items || []).some(it => (it.product_name || '').toLowerCase().includes(q));
 
-        return idMatch || lcMatch || pi1Match || pi2Match || blMatch || prodMatch || customerName.includes(q) || supplierName.includes(q);
+        if (searchScope === 'lc') return lcNo.includes(q);
+        if (searchScope === 'pi') return pi1.includes(q) || pi2.includes(q);
+        if (searchScope === 'product') return prodMatch;
+        if (searchScope === 'supplier') return supplierName.includes(q);
+
+        // 'all' scope
+        return idStr.includes(q) || lcNo.includes(q) || pi1.includes(q) || pi2.includes(q) || prodMatch || customerName.includes(q) || supplierName.includes(q);
     });
 
     // Grand totals
@@ -416,13 +412,13 @@ function renderOrdersList() {
     const grandCashback = customerOrders.reduce((sum, o) => sum + getOrderCashback(o), 0);
     const deliveredCount = customerOrders.filter(o => o.status === 'Delivered').length;
 
-    // Shipment Notifications
-    const shipmentAlerts = getShipmentAlerts(customerOrders);
+    // Exact Mac App Urgent Orders Alert Card
+    const urgentOrders = getUrgentOrders(customerOrders);
 
     content.innerHTML = `
-        <div class="space-y-6">
+        <div class="space-y-5">
             <!-- Customer Welcome Header (Clean, Premium, High Contrast) -->
-            <div class="bg-gradient-to-r from-navy-950 to-navy-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-navy-800 flex flex-wrap items-center justify-between gap-4">
+            <div class="bg-gradient-to-r from-navy-950 to-navy-900 text-white rounded-2xl p-4 sm:p-5 shadow-sm border border-navy-800 flex flex-wrap items-center justify-between gap-3">
                 <div class="min-w-0">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-gold/25 text-brand-gold border border-brand-gold/40 mb-1">
                         <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Client Order Portal
@@ -443,108 +439,115 @@ function renderOrdersList() {
                 </div>
             </div>
 
-            <!-- Shipment Alerts (Shown Only When Vessel Approaching) -->
-            ${shipmentAlerts.length > 0 ? `
-                <div class="bg-amber-50/90 border border-amber-300/80 rounded-2xl p-4 shadow-xs space-y-2">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="bell-ring" class="w-4 h-4 text-amber-600 animate-pulse"></i>
-                        <h4 class="font-bold text-xs sm:text-sm text-amber-950 font-display">Shipment &amp; ETA Alerts (${shipmentAlerts.length})</h4>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        ${shipmentAlerts.map(alert => `
-                            <div class="p-2.5 bg-white rounded-xl border border-amber-200 flex items-center justify-between gap-2 text-xs">
-                                <div class="min-w-0 pr-2">
-                                    <span class="font-bold text-gray-900">Order #${alert.orderId}</span>
-                                    <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${alert.type === 'danger' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">${alert.badge}</span>
-                                    <p class="text-gray-600 text-[11px] truncate mt-0.5">${alert.msg}</p>
-                                </div>
-                                <button onclick="navigateToOrderDetail(${alert.orderId})" class="px-3 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-xs shrink-0">
-                                    View
-                                </button>
-                            </div>
+            <!-- EXACT Mac App Urgent Orders Alert Card (Clean, Rose/Stamp Tone, 1:1 Design) -->
+            ${urgentOrders.length > 0 ? `
+                <div class="rounded-xl border border-rose-200 bg-rose-50/70 p-3 sm:p-3.5 shadow-2xs">
+                    <p class="mb-2 flex items-center gap-1.5 text-xs font-bold text-rose-700">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600 animate-pulse"></i>
+                        <span>${urgentOrders.length} order${urgentOrders.length > 1 ? 's' : ''} need attention (Shipment Near ETA)</span>
+                    </p>
+                    <div class="space-y-1">
+                        ${urgentOrders.slice(0, 6).map(({ order, urgency }) => `
+                            <button onclick="navigateToOrderDetail(${order.id})" 
+                                    class="flex w-full items-center justify-between rounded-lg bg-white px-3 py-1.5 text-left text-xs border border-rose-100 hover:border-rose-300 transition shadow-2xs">
+                                <span class="font-medium text-gray-800 truncate pr-2">
+                                    Order #${order.id} — PI: ${order.pi1 || order.pi_no || 'N/A'}${order.lc_no ? ' · LC: ' + order.lc_no : ''}
+                                </span>
+                                <span class="font-bold text-[11px] shrink-0 ${urgency.level === 3 ? 'text-rose-600 font-extrabold' : 'text-amber-700'}">
+                                    ${urgency.text}
+                                </span>
+                            </button>
                         `).join('')}
                     </div>
                 </div>
             ` : ''}
 
-            <!-- 4 Clean Summary Cards (Simple & Clear) -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Orders</p>
-                    <p class="text-2xl font-extrabold text-gray-900 mt-0.5">${customerOrders.length}</p>
-                    <p class="text-xs text-gray-500 mt-0.5">${deliveredCount} Delivered</p>
+            <!-- 4 Clean Summary Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
+                    <p class="text-[10px] uppercase font-bold text-gray-400">Total Orders</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-0.5">${customerOrders.length}</p>
+                    <p class="text-[11px] text-gray-500">${deliveredCount} Delivered</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Quantity</p>
-                    <p class="text-2xl font-extrabold text-blue-600 mt-0.5">${grandQty.toFixed(2)}</p>
-                    <p class="text-xs text-gray-500 mt-0.5">Metric Tons (MT)</p>
+                <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
+                    <p class="text-[10px] uppercase font-bold text-gray-400">Total Quantity</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-blue-600 mt-0.5">${grandQty.toFixed(2)}</p>
+                    <p class="text-[11px] text-gray-500">Metric Tons (MT)</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Value</p>
-                    <p class="text-2xl font-extrabold text-emerald-600 mt-0.5">$${grandAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                    <p class="text-xs text-gray-500 mt-0.5">USD Gross</p>
+                <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
+                    <p class="text-[10px] uppercase font-bold text-gray-400">Total Value</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-0.5">$${grandAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p class="text-[11px] text-gray-500">USD Gross</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-pink-100 bg-pink-50/20 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-pink-700">Cashback</p>
-                    <p class="text-2xl font-extrabold text-pink-600 mt-0.5">$${grandCashback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                    <p class="text-xs text-pink-800 mt-0.5">Total Cashback</p>
+                <div class="bg-white p-3.5 rounded-xl border border-pink-100 bg-pink-50/20 shadow-2xs">
+                    <p class="text-[10px] uppercase font-bold text-pink-700">Cashback</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-pink-600 mt-0.5">$${grandCashback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p class="text-[11px] text-pink-800">Total Cashback</p>
                 </div>
             </div>
 
-            <!-- Search & Clean Tabs Filter -->
-            <div class="space-y-3">
-                <!-- Search Bar -->
-                <div class="relative">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <!-- COMPACT & BEAUTIFUL SEARCH BAR WITH INTEGRATED SCOPE & STATUS PILLS (Exact Mac Style) -->
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+                <!-- Sleek Input Field -->
+                <div class="relative flex-1 min-w-[220px]">
+                    <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
                     <input type="text" id="portalSearchInput" value="${searchQuery}" oninput="handleSearchChange(event)"
-                           placeholder="Search by LC Number, PI Number, Supplier Name, or Product..." 
-                           class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
+                           placeholder="Search orders, LC, PI, product, supplier…" 
+                           class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-200 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white shadow-2xs">
                 </div>
 
-                <!-- Clean Tabs: All, Pending, In Production, Shipped, Delivered -->
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                <!-- Scope Pills (All, LC, PI, Product, Supplier) -->
+                <div class="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 shadow-2xs">
                     ${[
-                        { id: 'ALL', label: 'All Orders' },
+                        { id: 'all', label: 'All' },
+                        { id: 'lc', label: 'LC No' },
+                        { id: 'pi', label: 'PI No' },
+                        { id: 'product', label: 'Product' },
+                        { id: 'supplier', label: 'Supplier' }
+                    ].map(s => `
+                        <button onclick="handleScopeChange('${s.id}')"
+                                class="rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${searchScope === s.id ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'}">
+                            ${s.label}
+                        </button>
+                    `).join('')}
+                </div>
+
+                <!-- Compact Status Selector -->
+                <div class="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 shadow-2xs">
+                    ${[
+                        { id: 'all', label: 'All Status' },
                         { id: 'Pending', label: 'Pending' },
                         { id: 'In Production', label: 'In Production' },
                         { id: 'Shipped', label: 'Shipped' },
                         { id: 'Delivered', label: 'Delivered' }
-                    ].map(tab => {
-                        const count = customerOrders.filter(o => {
-                            if (tab.id === 'ALL') return true;
-                            if (tab.id === 'In Production') return o.status === 'In Production' || o.status === 'Confirmed';
-                            return o.status === tab.id;
-                        }).length;
-                        return `
-                            <button onclick="handleTabChange('${tab.id}')" 
-                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-xs' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}">
-                                <span>${tab.label}</span>
-                                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}">${count}</span>
-                            </button>
-                        `;
-                    }).join('')}
+                    ].map(st => `
+                        <button onclick="handleStatusFilter('${st.id}')"
+                                class="rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${activeFilter === st.id ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'}">
+                            ${st.label}
+                        </button>
+                    `).join('')}
                 </div>
             </div>
 
             <!-- Orders Clean List -->
             <div>
-                <div class="flex items-center justify-between mb-3 px-1">
+                <div class="flex items-center justify-between mb-2.5 px-1">
                     <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700 font-display">
-                        Order List (${filteredOrders.length})
+                        Order List (${filteredOrders.length}${filteredOrders.length !== customerOrders.length ? ` of ${customerOrders.length}` : ''})
                     </h3>
-                    <span class="text-xs text-gray-400">Click any order to view details &amp; download files</span>
+                    <span class="text-xs text-gray-400">Click any card to view full details</span>
                 </div>
 
                 ${filteredOrders.length === 0 ? `
-                    <div class="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-10 text-center text-gray-500">
-                        <i data-lucide="inbox" class="w-10 h-10 mx-auto text-gray-300 mb-2"></i>
-                        <p class="font-bold text-sm">No orders found in this section</p>
-                        ${(searchQuery || activeTab !== 'ALL') ? `
-                            <button onclick="clearSearchFilters()" class="mt-3 px-3.5 py-1.5 rounded-lg bg-blue-600 text-white font-semibold text-xs">Clear Filters</button>
+                    <div class="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-8 text-center text-gray-500">
+                        <i data-lucide="inbox" class="w-8 h-8 mx-auto text-gray-300 mb-2"></i>
+                        <p class="font-semibold text-xs sm:text-sm">No orders matching your search or filter</p>
+                        ${(searchQuery || activeFilter !== 'all' || searchScope !== 'all') ? `
+                            <button onclick="clearSearchFilters()" class="mt-2.5 px-3 py-1 rounded-lg bg-blue-600 text-white font-semibold text-xs">Clear Search & Filters</button>
                         ` : ''}
                     </div>
                 ` : `
-                    <div class="space-y-3">
+                    <div class="space-y-2.5">
                         ${filteredOrders.map(order => renderCleanOrderCard(order)).join('')}
                     </div>
                 `}
@@ -559,18 +562,24 @@ function handleSearchChange(e) {
     renderOrdersList();
 }
 
-function handleTabChange(tabId) {
-    activeTab = tabId;
+function handleScopeChange(scope) {
+    searchScope = scope;
+    renderOrdersList();
+}
+
+function handleStatusFilter(status) {
+    activeFilter = status;
     renderOrdersList();
 }
 
 function clearSearchFilters() {
     searchQuery = '';
-    activeTab = 'ALL';
+    searchScope = 'all';
+    activeFilter = 'all';
     renderOrdersList();
 }
 
-// Clean, User-Friendly Order Card (No Clutter, Extremely Legible)
+// Clean, User-Friendly Order Card (Exact 1:1 Clean Information Hierarchy)
 function renderCleanOrderCard(order) {
     const status = order.status || 'Pending';
     let statusPill = 'bg-amber-50 text-amber-700 border-amber-200';
@@ -585,7 +594,6 @@ function renderCleanOrderCard(order) {
     const fileCount = (order.files || []).length;
     const piDisplay = order.pi1 ? (order.bl_count === 2 && order.pi2 ? `${order.pi1} / ${order.pi2}` : order.pi1) : (order.pi_no || 'N/A');
 
-    // Supplier & Factory Name (Clean, No Addresses)
     const supplier = allSuppliers.find(s => s.id === order.supplier_id);
     const supplierName = supplier?.name || 'International Supplier';
 
@@ -595,13 +603,13 @@ function renderCleanOrderCard(order) {
 
     return `
         <div onclick="navigateToOrderDetail(${order.id})" 
-             class="bg-white rounded-2xl border border-gray-200/90 hover:border-blue-400 hover:shadow-md transition cursor-pointer p-4 sm:p-5 select-none space-y-3">
+             class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-400 hover:shadow-xs transition cursor-pointer p-3.5 sm:p-4 select-none space-y-2.5">
             
             <!-- Card Header: Order #, Status & Dates -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2.5">
-                <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <span class="font-extrabold text-sm text-gray-900 font-display">Order #${order.id}</span>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusPill}">
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${statusPill}">
                         ${status}
                     </span>
                     ${isDifferentFactory ? `
@@ -611,54 +619,54 @@ function renderCleanOrderCard(order) {
                     ` : ''}
                 </div>
                 <div class="text-xs text-gray-500 flex items-center gap-2">
-                    <span>Date: <strong class="text-gray-700">${order.order_date || 'N/A'}</strong></span>
+                    <span>Date: <strong class="text-gray-700 font-medium">${order.order_date || 'N/A'}</strong></span>
                     ${fileCount > 0 ? `
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
                             <i data-lucide="paperclip" class="w-3 h-3"></i> ${fileCount} Files
                         </span>
                     ` : ''}
                 </div>
             </div>
 
-            <!-- Card Body: Clean Two Columns -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <!-- Card Body: Clean Three Columns -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
                 <!-- Col 1: Parties & References -->
-                <div class="space-y-1">
+                <div class="space-y-0.5">
                     <p class="text-gray-500">Supplier: <strong class="text-gray-900 font-medium">${supplierName}</strong></p>
                     <p class="text-gray-500">LC Number: <strong class="text-gray-900 font-mono">${order.lc_no || 'Pending'}</strong></p>
                     <p class="text-gray-500">PI Number: <strong class="text-gray-900 font-mono">${piDisplay}</strong></p>
                 </div>
 
                 <!-- Col 2: Shipment Details (ETD / ETA) -->
-                <div class="space-y-1 sm:border-l sm:border-gray-100 sm:pl-3">
+                <div class="space-y-0.5 sm:border-l sm:border-gray-100 sm:pl-3">
                     <p class="text-gray-500">ETD (Shipment): <strong class="text-gray-900">${order.shipment_date_1 || order.shipment_date || 'N/A'}</strong></p>
                     <p class="text-gray-500">ETA (Arrival): <strong class="text-blue-700 font-bold">${order.etd_1 || order.etd || 'N/A'}</strong></p>
                     ${order.bl1 ? `<p class="text-gray-500">BL No: <strong class="text-gray-800 font-mono">${order.bl1}</strong></p>` : ''}
                 </div>
 
                 <!-- Col 3: Quantity & Financials -->
-                <div class="space-y-1 sm:border-l sm:border-gray-100 sm:pl-3 flex flex-col justify-center sm:items-end text-left sm:text-right">
+                <div class="space-y-0.5 sm:border-l sm:border-gray-100 sm:pl-3 flex flex-col justify-center sm:items-end text-left sm:text-right">
                     <div>
                         <span class="text-xs text-gray-500">Quantity:</span> 
-                        <strong class="text-sm font-extrabold text-gray-900 ml-1">${qty.toFixed(2)} MT</strong>
+                        <strong class="text-xs sm:text-sm font-extrabold text-gray-900 ml-1">${qty.toFixed(2)} MT</strong>
                     </div>
                     <div>
                         <span class="text-xs text-gray-500">Total Value:</span> 
-                        <strong class="text-sm font-extrabold text-emerald-700 ml-1">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                        <strong class="text-xs sm:text-sm font-extrabold text-emerald-700 ml-1">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                     </div>
                     ${cashback > 0 ? `
-                        <p class="text-[11px] text-pink-700 font-bold">Cashback: $${cashback.toFixed(2)}</p>
+                        <p class="text-[10px] text-pink-700 font-bold">Cashback: $${cashback.toFixed(2)}</p>
                     ` : ''}
                 </div>
             </div>
 
             <!-- Card Bottom Bar: Quick Action Buttons -->
             <div class="pt-2 border-t border-gray-100 flex items-center justify-between" onclick="event.stopPropagation()">
-                <button onclick="navigateToOrderDetail(${order.id})" class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
+                <button onclick="navigateToOrderDetail(${order.id})" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
                     <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                     <span>View Full Details &amp; Products</span>
                 </button>
-                <button onclick="printOrderInvoiceLegacy(${order.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold transition">
+                <button onclick="printOrderInvoiceLegacy(${order.id})" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold transition">
                     <i data-lucide="printer" class="w-3.5 h-3.5 text-gray-600"></i>
                     <span>Print Order</span>
                 </button>
@@ -699,7 +707,7 @@ function renderOrderDetailPage(order) {
             <!-- Top Navigation & Print Order Button -->
             <div class="flex items-center justify-between pb-3 border-b border-gray-200">
                 <button onclick="navigateBackToOrdersList()" 
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition">
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Order List
                 </button>
                 <div class="flex items-center gap-2">
