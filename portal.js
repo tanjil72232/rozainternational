@@ -8,7 +8,7 @@ let allCustomers = [];
 let allProducts = [];
 let allSuppliers = [];
 let searchQuery = '';
-let activeSection = 'ALL'; // 'ALL', 'Pending', 'In Production', 'Shipped', 'Delivered', 'DeliveredPaid', 'Cancelled'
+let activeTab = 'ALL'; // 'ALL', 'Pending', 'In Production', 'Shipped', 'Delivered'
 let currentViewingOrderId = null;
 
 // Company info for invoice/memo
@@ -19,70 +19,6 @@ const COMPANY = {
     email: 'tanjil@rozainternational.com',
     website: 'www.rozainternational.com'
 };
-
-// Section Definitions (Faithful 1:1 replica of Mac OrdersView SECTIONS)
-const SECTIONS = [
-    {
-        id: 'Pending',
-        label: 'Pending Orders',
-        icon: 'clock',
-        accent: 'text-amber-700 bg-amber-50 border-amber-200',
-        badgeBg: 'bg-amber-100 text-amber-800 border-amber-300',
-        indicator: 'bg-amber-500',
-        headerBg: 'bg-amber-500/10 border-b border-amber-200/70',
-        idBadge: 'bg-amber-100 text-amber-900 border border-amber-300',
-    },
-    {
-        id: 'In Production',
-        label: 'In Production / Confirmed',
-        icon: 'check-circle-2',
-        accent: 'text-teal-700 bg-teal-50 border-teal-200',
-        badgeBg: 'bg-teal-100 text-teal-800 border-teal-300',
-        indicator: 'bg-teal-500',
-        headerBg: 'bg-teal-500/10 border-b border-teal-200/70',
-        idBadge: 'bg-teal-100 text-teal-900 border border-teal-300',
-    },
-    {
-        id: 'Shipped',
-        label: 'Shipped Orders',
-        icon: 'ship',
-        accent: 'text-sky-700 bg-sky-50 border-sky-200',
-        badgeBg: 'bg-sky-100 text-sky-800 border-sky-300',
-        indicator: 'bg-sky-500',
-        headerBg: 'bg-sky-500/10 border-b border-sky-200/70',
-        idBadge: 'bg-sky-100 text-sky-900 border border-sky-300',
-    },
-    {
-        id: 'Delivered',
-        label: 'Delivered (Pending Commission)',
-        icon: 'truck',
-        accent: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-        badgeBg: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-        indicator: 'bg-emerald-500',
-        headerBg: 'bg-emerald-500/10 border-b border-emerald-200/70',
-        idBadge: 'bg-emerald-100 text-emerald-900 border border-emerald-300',
-    },
-    {
-        id: 'DeliveredPaid',
-        label: 'Delivered (Completed & Paid)',
-        icon: 'check-circle',
-        accent: 'text-purple-700 bg-purple-50 border-purple-200',
-        badgeBg: 'bg-purple-100 text-purple-800 border-purple-300',
-        indicator: 'bg-purple-500',
-        headerBg: 'bg-purple-500/10 border-b border-purple-200/70',
-        idBadge: 'bg-purple-100 text-purple-900 border border-purple-300',
-    },
-    {
-        id: 'Cancelled',
-        label: 'Cancelled Orders',
-        icon: 'ban',
-        accent: 'text-rose-700 bg-rose-50 border-rose-200',
-        badgeBg: 'bg-rose-100 text-rose-800 border-rose-300',
-        indicator: 'bg-rose-500',
-        headerBg: 'bg-rose-500/10 border-b border-rose-200/70',
-        idBadge: 'bg-rose-100 text-rose-900 border border-rose-300',
-    }
-];
 
 function openCustomerPortalModal() {
     window.location.href = '/order/';
@@ -106,7 +42,7 @@ function renderPortalLogin() {
     const content = document.getElementById('customerPortalBody');
     if (!content) return;
     content.innerHTML = `
-        <div class="max-w-md mx-auto py-6 sm:py-10">
+        <div class="max-w-md mx-auto py-8 sm:py-12">
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-3 border border-blue-100 shadow-xs">
                     <i data-lucide="shield-check" class="w-7 h-7"></i>
@@ -115,21 +51,17 @@ function renderPortalLogin() {
                 <p class="text-xs sm:text-sm text-gray-500 mt-1">Log in with your Phone Number or Email & Password assigned by Roza International.</p>
             </div>
 
-            <form id="portalLoginForm" onsubmit="handlePortalLogin(event)" class="bg-gray-50 p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-xs space-y-4">
+            <form id="portalLoginForm" onsubmit="handlePortalLogin(event)" class="bg-gray-50/80 p-6 rounded-2xl border border-gray-200/80 shadow-xs space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Phone Number or Email</label>
-                    <div class="relative">
-                        <input type="text" id="portalIdentifier" required placeholder="e.g. 01711... or buyer@company.com" 
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
-                    </div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Phone Number or Email</label>
+                    <input type="text" id="portalIdentifier" required placeholder="e.g. 01711... or buyer@company.com" 
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Portal Password</label>
-                    <div class="relative">
-                        <input type="password" id="portalPassword" required placeholder="Enter your portal password" 
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
-                    </div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Portal Password</label>
+                    <input type="password" id="portalPassword" required placeholder="Enter your portal password" 
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
                 </div>
 
                 <div id="portalLoginError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 p-2.5 rounded-lg text-center"></div>
@@ -238,7 +170,7 @@ async function renderPortalDashboard() {
     content.innerHTML = `
         <div class="py-16 text-center">
             <div class="inline-block animate-spin text-3xl mb-3">⏳</div>
-            <p class="text-sm font-semibold text-gray-700">Loading orders & shipments securely...</p>
+            <p class="text-sm font-semibold text-gray-700">Loading your orders & shipments securely...</p>
         </div>
     `;
 
@@ -270,7 +202,6 @@ async function renderPortalDashboard() {
         allSuppliers = (Array.isArray(suppRows) && suppRows[0]?.data) ? suppRows[0].data : [];
         allCustomers = (Array.isArray(custRows) && custRows[0]?.data) ? custRows[0].data : [];
 
-        // Support direct customer matching OR Different Factory / Sister Concern shared order matching
         customerOrders = allOrders.filter(o => {
             if (o.portal_visible === false) return false;
             const isDirectCustomer = Number(o.customer_id) === Number(currentCustomer.id);
@@ -297,7 +228,7 @@ async function renderPortalDashboard() {
     }
 }
 
-// Helpers for calculations & labels
+// Helpers for calculations
 function getOrderActualQty(order) {
     if (order.status === 'Delivered' && Array.isArray(order.actual_items) && order.actual_items.length > 0) {
         return order.actual_items.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0), 0);
@@ -330,22 +261,6 @@ function getOrderCashback(order) {
     return rate * qty;
 }
 
-function getPartStatus(order, partNum) {
-    if (order.status === 'Delivered') return 'Delivered';
-    if (order.status === 'Cancelled') return 'Cancelled';
-    if (partNum === 1) {
-        if (order.part1_delivered) return 'Delivered';
-        if (order.part1_shipped) return 'Shipped';
-        return order.status || 'Pending';
-    }
-    if (partNum === 2) {
-        if (order.part2_delivered) return 'Delivered';
-        if (order.part2_shipped) return 'Shipped';
-        return order.status || 'Pending';
-    }
-    return order.status || 'Pending';
-}
-
 function getOrderUrgency(order) {
     if (order.status !== 'Shipped') return { level: 0, text: '', diff: null };
     const now = new Date();
@@ -361,7 +276,7 @@ function getOrderUrgency(order) {
     const diff = Math.ceil((etaDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
 
     if (diff <= 0) return { level: 3, text: 'ETA Arrived / Overdue', diff };
-    if (diff <= 7) return { level: 2, text: `${diff}D to ETA (Ship Approaching)`, diff };
+    if (diff <= 7) return { level: 2, text: `${diff}D to ETA`, diff };
     return { level: 1, text: `${diff}D to ETA`, diff };
 }
 
@@ -378,8 +293,7 @@ function getShipmentAlerts(orders) {
                 days: urgency.diff,
                 etaDate: order.etd_1 || order.etd,
                 bl: order.bl1 || order.bl_no,
-                part: 'Shipment',
-                msg: urgency.level === 3 ? `Vessel arrived at port or reached ETA date!` : `Ship is approaching! Estimated arrival in ${urgency.diff} days.`
+                msg: urgency.level === 3 ? `Shipment reached scheduled ETA date!` : `Ship is approaching in ${urgency.diff} days.`
             });
         }
     });
@@ -397,7 +311,7 @@ function checkAndDispatchNotifications(orders) {
         newOrders.forEach(o => {
             triggerBrowserNotification(
                 `🆕 New Order Assigned #${o.id}`,
-                `A new indent order #${o.id} is now available in your portal (PI: ${o.pi1 || o.pi_no || 'Pending'}).`
+                `Order #${o.id} is now available in your portal (PI: ${o.pi1 || o.pi_no || 'Pending'}).`
             );
         });
     }
@@ -470,11 +384,20 @@ function renderOrdersList() {
     const content = document.getElementById('customerPortalBody');
     if (!content) return;
 
-    // Filter by search query (LC number, PI number, Order ID, Product, Supplier, Customer)
+    // Filter by search query & active status tab
     const q = searchQuery.toLowerCase().trim();
     const filteredOrders = customerOrders.filter(order => {
-        if (!q) return true;
+        // Tab filter
+        if (activeTab !== 'ALL') {
+            if (activeTab === 'In Production') {
+                if (order.status !== 'In Production' && order.status !== 'Confirmed') return false;
+            } else if (order.status !== activeTab) {
+                return false;
+            }
+        }
 
+        // Search query
+        if (!q) return true;
         const customerName = (allCustomers.find(c => c.id === order.customer_id)?.name || '').toLowerCase();
         const supplierName = (allSuppliers.find(s => s.id === order.supplier_id)?.name || '').toLowerCase();
         const idMatch = String(order.id).includes(q);
@@ -497,58 +420,46 @@ function renderOrdersList() {
     const shipmentAlerts = getShipmentAlerts(customerOrders);
 
     content.innerHTML = `
-        <div class="space-y-5">
-            <!-- Customer Welcome Header (Mac Suite Styling) -->
-            <div class="bg-gradient-to-r from-navy-950 via-navy-900 to-brand-blue text-white rounded-2xl p-4 sm:p-5 shadow-sm border border-navy-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="space-y-6">
+            <!-- Customer Welcome Header (Clean, Premium, High Contrast) -->
+            <div class="bg-gradient-to-r from-navy-950 to-navy-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-navy-800 flex flex-wrap items-center justify-between gap-4">
                 <div class="min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-brand-gold/25 text-brand-gold border border-brand-gold/40">
-                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Roza Client Suite
-                        </span>
-                        <span class="text-xs text-blue-200">#${currentCustomer.id}</span>
-                    </div>
-                    <h2 class="text-lg sm:text-2xl font-bold font-display truncate">${currentCustomer.name}</h2>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-gold/25 text-brand-gold border border-brand-gold/40 mb-1">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Client Order Portal
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold font-display truncate">${currentCustomer.name}</h2>
                     <p class="text-xs text-gray-300 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5">
                         ${currentCustomer.phone ? `<span>📞 ${currentCustomer.phone}</span>` : ''}
                         ${currentCustomer.email ? `<span>✉️ ${currentCustomer.email}</span>` : ''}
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="renderPortalDashboard()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 flex items-center gap-1.5 transition">
+                    <button onclick="renderPortalDashboard()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 flex items-center gap-1.5 transition">
                         <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
                     </button>
-                    <button onclick="customerPortalLogout()" class="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 flex items-center gap-1.5 transition">
+                    <button onclick="customerPortalLogout()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 flex items-center gap-1.5 transition">
                         <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Log Out
                     </button>
                 </div>
             </div>
 
-            <!-- Shipment Alerts Section -->
+            <!-- Shipment Alerts (Shown Only When Vessel Approaching) -->
             ${shipmentAlerts.length > 0 ? `
-                <div class="bg-amber-50/90 border border-amber-300 rounded-xl p-3.5 shadow-xs space-y-2">
+                <div class="bg-amber-50/90 border border-amber-300/80 rounded-2xl p-4 shadow-xs space-y-2">
                     <div class="flex items-center gap-2">
-                        <div class="p-1.5 rounded-lg bg-amber-500 text-white animate-pulse">
-                            <i data-lucide="bell-ring" class="w-4 h-4"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-xs sm:text-sm text-amber-950 font-display">Approaching Vessel Alerts (${shipmentAlerts.length})</h4>
-                            <p class="text-[11px] text-amber-800">Live ETA notices for approaching container shipments</p>
-                        </div>
+                        <i data-lucide="bell-ring" class="w-4 h-4 text-amber-600 animate-pulse"></i>
+                        <h4 class="font-bold text-xs sm:text-sm text-amber-950 font-display">Shipment &amp; ETA Alerts (${shipmentAlerts.length})</h4>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-0.5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         ${shipmentAlerts.map(alert => `
-                            <div class="p-2.5 bg-white rounded-lg border ${alert.type === 'danger' ? 'border-rose-300 bg-rose-50/30' : 'border-amber-200'} flex items-center justify-between gap-2 text-xs">
+                            <div class="p-2.5 bg-white rounded-xl border border-amber-200 flex items-center justify-between gap-2 text-xs">
                                 <div class="min-w-0 pr-2">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="font-bold text-gray-900">Order #${alert.orderId}</span>
-                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${alert.type === 'danger' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">
-                                            ${alert.badge}
-                                        </span>
-                                    </div>
-                                    <p class="text-gray-700 text-[11px] truncate">${alert.msg}</p>
+                                    <span class="font-bold text-gray-900">Order #${alert.orderId}</span>
+                                    <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${alert.type === 'danger' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">${alert.badge}</span>
+                                    <p class="text-gray-600 text-[11px] truncate mt-0.5">${alert.msg}</p>
                                 </div>
-                                <button onclick="navigateToOrderDetail(${alert.orderId})" class="px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-[11px] shrink-0">
-                                    Open
+                                <button onclick="navigateToOrderDetail(${alert.orderId})" class="px-3 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-xs shrink-0">
+                                    View
                                 </button>
                             </div>
                         `).join('')}
@@ -556,109 +467,87 @@ function renderOrdersList() {
                 </div>
             ` : ''}
 
-            <!-- Summary KPI Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
-                    <p class="text-[10px] uppercase font-bold text-gray-400">Total Orders</p>
-                    <p class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-0.5">${customerOrders.length}</p>
-                    <p class="text-[10px] text-gray-500">${deliveredCount} Delivered</p>
+            <!-- 4 Clean Summary Cards (Simple & Clear) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
+                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Orders</p>
+                    <p class="text-2xl font-extrabold text-gray-900 mt-0.5">${customerOrders.length}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">${deliveredCount} Delivered</p>
                 </div>
-                <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
-                    <p class="text-[10px] uppercase font-bold text-gray-400">Total Quantity</p>
-                    <p class="text-xl sm:text-2xl font-extrabold text-blue-600 mt-0.5">${grandQty.toFixed(2)}</p>
-                    <p class="text-[10px] text-gray-500">Metric Tons (MT)</p>
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
+                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Quantity</p>
+                    <p class="text-2xl font-extrabold text-blue-600 mt-0.5">${grandQty.toFixed(2)}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Metric Tons (MT)</p>
                 </div>
-                <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
-                    <p class="text-[10px] uppercase font-bold text-gray-400">Order Value</p>
-                    <p class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-0.5">$${grandAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                    <p class="text-[10px] text-gray-500">USD Total</p>
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
+                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Value</p>
+                    <p class="text-2xl font-extrabold text-emerald-600 mt-0.5">$${grandAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">USD Gross</p>
                 </div>
-                <div class="bg-white p-3.5 rounded-xl border border-pink-100 bg-pink-50/20 shadow-2xs">
-                    <p class="text-[10px] uppercase font-bold text-pink-700">Cashback</p>
-                    <p class="text-xl sm:text-2xl font-extrabold text-pink-600 mt-0.5">$${grandCashback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                    <p class="text-[10px] text-pink-800">Total Cashback</p>
+                <div class="bg-white p-4 rounded-2xl border border-pink-100 bg-pink-50/20 shadow-xs">
+                    <p class="text-[11px] uppercase font-bold text-pink-700">Cashback</p>
+                    <p class="text-2xl font-extrabold text-pink-600 mt-0.5">$${grandCashback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p class="text-xs text-pink-800 mt-0.5">Total Cashback</p>
                 </div>
             </div>
 
-            <!-- Controls: Search & Section Tabs (Faithful to Mac App) -->
-            <div class="space-y-2">
-                <!-- Search Box -->
+            <!-- Search & Clean Tabs Filter -->
+            <div class="space-y-3">
+                <!-- Search Bar -->
                 <div class="relative">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
                     <input type="text" id="portalSearchInput" value="${searchQuery}" oninput="handleSearchChange(event)"
-                           placeholder="Search by LC Number, PI Number, Supplier Name, Factory, or Product..." 
-                           class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white shadow-2xs">
+                           placeholder="Search by LC Number, PI Number, Supplier Name, or Product..." 
+                           class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
                 </div>
 
-                <!-- Section Navigation Tabs (Exact replication of Mac App Tabs) -->
+                <!-- Clean Tabs: All, Pending, In Production, Shipped, Delivered -->
                 <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                    <button onclick="handleSectionTabChange('ALL')" 
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${activeSection === 'ALL' ? 'bg-navy-950 text-white shadow-2xs' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}">
-                        <span>All Orders</span>
-                        <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeSection === 'ALL' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}">${customerOrders.length}</span>
-                    </button>
-                    ${SECTIONS.map(sec => {
+                    ${[
+                        { id: 'ALL', label: 'All Orders' },
+                        { id: 'Pending', label: 'Pending' },
+                        { id: 'In Production', label: 'In Production' },
+                        { id: 'Shipped', label: 'Shipped' },
+                        { id: 'Delivered', label: 'Delivered' }
+                    ].map(tab => {
                         const count = customerOrders.filter(o => {
-                            if (sec.id === 'Delivered') return o.status === 'Delivered';
-                            if (sec.id === 'In Production') return o.status === 'In Production' || o.status === 'Confirmed';
-                            return o.status === sec.id;
+                            if (tab.id === 'ALL') return true;
+                            if (tab.id === 'In Production') return o.status === 'In Production' || o.status === 'Confirmed';
+                            return o.status === tab.id;
                         }).length;
                         return `
-                            <button onclick="handleSectionTabChange('${sec.id}')" 
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${activeSection === sec.id ? 'bg-navy-950 text-white shadow-2xs' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}">
-                                <span class="w-2 h-2 rounded-full ${sec.indicator}"></span>
-                                <span>${sec.label}</span>
-                                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeSection === sec.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}">${count}</span>
+                            <button onclick="handleTabChange('${tab.id}')" 
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-xs' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}">
+                                <span>${tab.label}</span>
+                                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}">${count}</span>
                             </button>
                         `;
                     }).join('')}
                 </div>
             </div>
 
-            <!-- Orders Section Groups (Exact Mac App UI Hierarchy) -->
-            <div class="space-y-6">
-                ${SECTIONS.map(section => {
-                    if (activeSection !== 'ALL' && activeSection !== section.id) return '';
-                    
-                    const sectionOrders = filteredOrders.filter(o => {
-                        if (section.id === 'Delivered') return o.status === 'Delivered';
-                        if (section.id === 'In Production') return o.status === 'In Production' || o.status === 'Confirmed';
-                        return o.status === section.id;
-                    });
-
-                    if (sectionOrders.length === 0) return '';
-
-                    return `
-                        <div>
-                            <!-- Mac App Section Header Style -->
-                            <div class="mb-2.5 flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold shadow-2xs ${section.headerBg}">
-                                        <i data-lucide="${section.icon}" class="w-3.5 h-3.5"></i>
-                                        <span>${section.label}</span>
-                                        <span class="ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-bold ${section.badgeBg}">${sectionOrders.length}</span>
-                                    </span>
-                                </div>
-                                <div class="h-px flex-1 ml-3 bg-gray-200"></div>
-                            </div>
-
-                            <!-- List of Order Cards in this section -->
-                            <div class="space-y-2.5">
-                                ${sectionOrders.map(order => renderMacStyleOrderCard(order, section)).join('')}
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
+            <!-- Orders Clean List -->
+            <div>
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700 font-display">
+                        Order List (${filteredOrders.length})
+                    </h3>
+                    <span class="text-xs text-gray-400">Click any order to view details &amp; download files</span>
+                </div>
 
                 ${filteredOrders.length === 0 ? `
-                    <div class="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-8 text-center text-gray-500">
-                        <i data-lucide="search-x" class="w-9 h-9 mx-auto text-gray-400 mb-2"></i>
-                        <p class="font-bold text-xs sm:text-sm">No orders found matching your search</p>
-                        ${searchQuery ? `
-                            <button onclick="clearSearchFilters()" class="mt-2.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold text-xs">Clear Search</button>
+                    <div class="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-10 text-center text-gray-500">
+                        <i data-lucide="inbox" class="w-10 h-10 mx-auto text-gray-300 mb-2"></i>
+                        <p class="font-bold text-sm">No orders found in this section</p>
+                        ${(searchQuery || activeTab !== 'ALL') ? `
+                            <button onclick="clearSearchFilters()" class="mt-3 px-3.5 py-1.5 rounded-lg bg-blue-600 text-white font-semibold text-xs">Clear Filters</button>
                         ` : ''}
                     </div>
-                ` : ''}
+                ` : `
+                    <div class="space-y-3">
+                        ${filteredOrders.map(order => renderCleanOrderCard(order)).join('')}
+                    </div>
+                `}
             </div>
         </div>
     `;
@@ -670,188 +559,126 @@ function handleSearchChange(e) {
     renderOrdersList();
 }
 
-function handleSectionTabChange(secId) {
-    activeSection = secId;
+function handleTabChange(tabId) {
+    activeTab = tabId;
     renderOrdersList();
 }
 
 function clearSearchFilters() {
     searchQuery = '';
-    activeSection = 'ALL';
+    activeTab = 'ALL';
     renderOrdersList();
 }
 
-// 1:1 Pixel-Faithful Replica of Mac App OrderCard UI
-function renderMacStyleOrderCard(order, section) {
-    const urgency = getOrderUrgency(order);
+// Clean, User-Friendly Order Card (No Clutter, Extremely Legible)
+function renderCleanOrderCard(order) {
+    const status = order.status || 'Pending';
+    let statusPill = 'bg-amber-50 text-amber-700 border-amber-200';
+    if (status === 'Delivered') statusPill = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    else if (status === 'Shipped') statusPill = 'bg-sky-50 text-sky-700 border-sky-200';
+    else if (status === 'In Production' || status === 'Confirmed') statusPill = 'bg-teal-50 text-teal-700 border-teal-200';
+    else if (status === 'Cancelled') statusPill = 'bg-rose-50 text-rose-700 border-rose-200';
+
     const qty = getOrderActualQty(order);
     const amount = getOrderTotalAmount(order);
     const cashback = getOrderCashback(order);
     const fileCount = (order.files || []).length;
-    const twoParts = order.bl_count === 2;
+    const piDisplay = order.pi1 ? (order.bl_count === 2 && order.pi2 ? `${order.pi1} / ${order.pi2}` : order.pi1) : (order.pi_no || 'N/A');
 
+    // Supplier & Factory Name (Clean, No Addresses)
     const supplier = allSuppliers.find(s => s.id === order.supplier_id);
     const supplierName = supplier?.name || 'International Supplier';
-    
-    // Factory identification (Only Name, No address)
+
     const isDifferentFactory = order.portal_customer_id && Number(order.portal_customer_id) === Number(currentCustomer.id) && Number(order.customer_id) !== Number(currentCustomer.id);
     const factoryCustomer = isDifferentFactory ? allCustomers.find(c => c.id === Number(order.customer_id)) : currentCustomer;
     const factoryName = factoryCustomer?.name || currentCustomer.name;
 
-    const statusBadgeMap = {
-        Delivered: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-        Shipped: 'bg-sky-100 text-sky-800 border-sky-300',
-        Completed: 'bg-teal-100 text-teal-800 border-teal-300',
-        Confirmed: 'bg-teal-100 text-teal-800 border-teal-300',
-        'In Production': 'bg-teal-100 text-teal-800 border-teal-300',
-        Pending: 'bg-amber-100 text-amber-800 border-amber-300',
-        Cancelled: 'bg-rose-100 text-rose-800 border-rose-300',
-    };
-
-    const statusBadge = (st) => `
-        <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold border ${statusBadgeMap[st] || statusBadgeMap.Pending}">
-            <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
-            ${st}
-        </span>
-    `;
-
     return `
         <div onclick="navigateToOrderDetail(${order.id})" 
-             class="group relative cursor-pointer rounded-xl border border-gray-200 bg-white shadow-2xs hover:border-blue-400 hover:shadow-xs transition select-none">
+             class="bg-white rounded-2xl border border-gray-200/90 hover:border-blue-400 hover:shadow-md transition cursor-pointer p-4 sm:p-5 select-none space-y-3">
             
-            <!-- Top Header: Order ID, Date, LC & Status (Exact Mac App Header) -->
-            <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-1.5 rounded-t-xl ${section.headerBg} transition-colors">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-mono text-xs font-black px-2 py-0.5 rounded shadow-2xs ${section.idBadge}">
-                        Order #${order.id}
+            <!-- Card Header: Order #, Status & Dates -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-sm text-gray-900 font-display">Order #${order.id}</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusPill}">
+                        ${status}
                     </span>
-                    <span class="text-xs font-medium text-gray-600 inline-flex items-center gap-1">
-                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400"></i>
-                        <span>${order.order_date || 'N/A'}</span>
-                    </span>
-                    ${order.lc_no ? `
-                        <span class="font-mono text-xs text-gray-700 bg-white/90 border border-gray-300 px-2 py-0.5 rounded">
-                            LC: <span class="font-bold text-gray-900">${order.lc_no}</span>
-                        </span>
-                    ` : ''}
-                    ${twoParts ? `
-                        <span class="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                            ⚡ 2 Split Shipments
-                        </span>
-                    ` : statusBadge(order.status || 'Pending')}
-
                     ${isDifferentFactory ? `
-                        <span class="rounded border border-amber-400 bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900 shadow-2xs">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
                             Factory: ${factoryName}
                         </span>
                     ` : ''}
-
-                    ${urgency.level >= 2 ? `
-                        <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-black border animate-pulse ${urgency.level === 3 ? 'border-rose-400 bg-rose-100 text-rose-800' : 'border-amber-400 bg-amber-100 text-amber-800'}">
-                            <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-                            <span>${urgency.diff !== null && urgency.diff <= 0 ? 'ETA ARRIVED' : `${urgency.diff}D TO ETA`}</span>
+                </div>
+                <div class="text-xs text-gray-500 flex items-center gap-2">
+                    <span>Date: <strong class="text-gray-700">${order.order_date || 'N/A'}</strong></span>
+                    ${fileCount > 0 ? `
+                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+                            <i data-lucide="paperclip" class="w-3 h-3"></i> ${fileCount} Files
                         </span>
                     ` : ''}
                 </div>
+            </div>
 
-                <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
-                    <button onclick="navigateToOrderDetail(${order.id})" class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-2xs">
-                        <i data-lucide="eye" class="w-3.5 h-3.5 text-blue-600"></i>
-                        <span class="hidden sm:inline">Details</span>
-                    </button>
-                    <button onclick="printOrderInvoiceLegacy(${order.id})" class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-2xs">
-                        <i data-lucide="printer" class="w-3.5 h-3.5 text-gray-700"></i>
-                        <span class="hidden sm:inline">Print Order</span>
-                    </button>
+            <!-- Card Body: Clean Two Columns -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                <!-- Col 1: Parties & References -->
+                <div class="space-y-1">
+                    <p class="text-gray-500">Supplier: <strong class="text-gray-900 font-medium">${supplierName}</strong></p>
+                    <p class="text-gray-500">LC Number: <strong class="text-gray-900 font-mono">${order.lc_no || 'Pending'}</strong></p>
+                    <p class="text-gray-500">PI Number: <strong class="text-gray-900 font-mono">${piDisplay}</strong></p>
+                </div>
+
+                <!-- Col 2: Shipment Details (ETD / ETA) -->
+                <div class="space-y-1 sm:border-l sm:border-gray-100 sm:pl-3">
+                    <p class="text-gray-500">ETD (Shipment): <strong class="text-gray-900">${order.shipment_date_1 || order.shipment_date || 'N/A'}</strong></p>
+                    <p class="text-gray-500">ETA (Arrival): <strong class="text-blue-700 font-bold">${order.etd_1 || order.etd || 'N/A'}</strong></p>
+                    ${order.bl1 ? `<p class="text-gray-500">BL No: <strong class="text-gray-800 font-mono">${order.bl1}</strong></p>` : ''}
+                </div>
+
+                <!-- Col 3: Quantity & Financials -->
+                <div class="space-y-1 sm:border-l sm:border-gray-100 sm:pl-3 flex flex-col justify-center sm:items-end text-left sm:text-right">
+                    <div>
+                        <span class="text-xs text-gray-500">Quantity:</span> 
+                        <strong class="text-sm font-extrabold text-gray-900 ml-1">${qty.toFixed(2)} MT</strong>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Total Value:</span> 
+                        <strong class="text-sm font-extrabold text-emerald-700 ml-1">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    </div>
+                    ${cashback > 0 ? `
+                        <p class="text-[11px] text-pink-700 font-bold">Cashback: $${cashback.toFixed(2)}</p>
+                    ` : ''}
                 </div>
             </div>
 
-            <!-- Main Body: Supplier/Factory + Shipment Info + Financials (Exact Mac 3-Column Layout) -->
-            <div class="p-3">
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:items-center">
-                    
-                    <!-- Col 1: Factory / Supplier Name (No Address, Clean Name Only) -->
-                    <div class="md:col-span-4 min-w-0">
-                        <p class="font-display text-sm font-bold text-gray-900 truncate leading-snug">
-                            ${factoryName}
-                        </p>
-                        <div class="flex items-center gap-1.5 text-xs text-gray-500 pt-0.5">
-                            <span class="text-gray-400 text-[11px]">Supplier:</span>
-                            <span class="font-medium text-gray-800 truncate">${supplierName}</span>
-                            ${fileCount > 0 ? `
-                                <span class="inline-flex items-center gap-0.5 text-[11px] font-semibold text-blue-600 shrink-0">
-                                    <i data-lucide="paperclip" class="w-3 h-3"></i> ${fileCount}
-                                </span>
-                            ` : ''}
-                        </div>
-                    </div>
-
-                    <!-- Col 2: Shipment Details (ETD, ETA, PI, BL - Roomy for single or 2 parts) -->
-                    <div class="md:col-span-5 md:border-l md:border-gray-200 md:pl-3">
-                        ${twoParts ? `
-                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                <!-- Part 1 -->
-                                <div class="text-[11px] leading-snug space-y-0.5">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-black uppercase text-amber-700">Part 1</span>
-                                        ${statusBadge(getPartStatus(order, 1))}
-                                    </div>
-                                    <p class="text-gray-700 truncate">PI: <strong class="font-mono text-gray-900">${order.pi1 || '—'}</strong> | BL: <strong class="font-mono text-gray-800">${order.bl1 || '—'}</strong></p>
-                                    <p class="text-gray-600 text-[10.5px]">ETD: ${order.shipment_date_1 || '—'} | ETA: <strong class="text-blue-700">${order.etd_1 || '—'}</strong></p>
-                                </div>
-                                <!-- Part 2 -->
-                                <div class="text-[11px] leading-snug space-y-0.5 border-l border-gray-200 pl-2">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-black uppercase text-gray-600">Part 2</span>
-                                        ${statusBadge(getPartStatus(order, 2))}
-                                    </div>
-                                    <p class="text-gray-700 truncate">PI: <strong class="font-mono text-gray-900">${order.pi2 || '—'}</strong> | BL: <strong class="font-mono text-gray-800">${order.bl2 || '—'}</strong></p>
-                                    <p class="text-gray-600 text-[10.5px]">ETD: ${order.shipment_date_2 || '—'} | ETA: <strong class="text-blue-700">${order.etd_2 || '—'}</strong></p>
-                                </div>
-                            </div>
-                        ` : `
-                            <div class="text-xs space-y-1">
-                                <div class="flex items-center gap-3 text-[11.5px]">
-                                    <span><span class="text-gray-400 text-[10px]">PI:</span> <span class="font-mono font-bold text-gray-900">${order.pi1 || order.pi_no || '—'}</span></span>
-                                    <span><span class="text-gray-400 text-[10px]">BL:</span> <span class="font-mono font-bold text-gray-800">${order.bl1 || '—'}</span></span>
-                                    ${order.dhl_tracking_1 ? `<span><span class="text-gray-400 text-[10px]">DHL:</span> <span class="font-mono text-gray-700">${order.dhl_tracking_1}</span></span>` : ''}
-                                </div>
-                                <div class="flex items-center gap-3 text-[11px] text-gray-600">
-                                    ${order.shipment_date_1 ? `<span><span class="text-gray-400 text-[10px]">ETD:</span> <span class="font-medium text-gray-800">${order.shipment_date_1}</span></span>` : ''}
-                                    ${order.etd_1 ? `<span><span class="text-gray-400 text-[10px]">ETA:</span> <span class="font-bold text-blue-700">${order.etd_1}</span></span>` : ''}
-                                </div>
-                            </div>
-                        `}
-                    </div>
-
-                    <!-- Col 3: Quantity & Value (Right Aligned Exact Mac Metrics) -->
-                    <div class="md:col-span-3 md:border-l md:border-gray-200 md:pl-3 flex flex-col justify-center text-right">
-                        <div>
-                            <span class="font-numeric text-xs sm:text-sm font-black text-gray-900 block leading-tight">
-                                ${qty.toFixed(2)} MT
-                            </span>
-                            <span class="font-numeric text-xs font-bold text-emerald-700 block leading-tight mt-0.5">
-                                $${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </span>
-                        </div>
-                        ${cashback > 0 ? `
-                            <p class="text-[10px] text-pink-700 font-semibold mt-0.5">
-                                Cashback: $${cashback.toFixed(2)}
-                            </p>
-                        ` : ''}
-                    </div>
-                </div>
+            <!-- Card Bottom Bar: Quick Action Buttons -->
+            <div class="pt-2 border-t border-gray-100 flex items-center justify-between" onclick="event.stopPropagation()">
+                <button onclick="navigateToOrderDetail(${order.id})" class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    <span>View Full Details &amp; Products</span>
+                </button>
+                <button onclick="printOrderInvoiceLegacy(${order.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold transition">
+                    <i data-lucide="printer" class="w-3.5 h-3.5 text-gray-600"></i>
+                    <span>Print Order</span>
+                </button>
             </div>
         </div>
     `;
 }
 
-// Full Dedicated Order Details Page
+// Clean Dedicated Order Detail Page
 function renderOrderDetailPage(order) {
     const content = document.getElementById('customerPortalBody');
     if (!content) return;
 
     const status = order.status || 'Pending';
+    let statusPill = 'bg-amber-50 text-amber-700 border-amber-200';
+    if (status === 'Delivered') statusPill = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    else if (status === 'Shipped') statusPill = 'bg-sky-50 text-sky-700 border-sky-200';
+    else if (status === 'In Production' || status === 'Confirmed') statusPill = 'bg-teal-50 text-teal-700 border-teal-200';
+    else if (status === 'Cancelled') statusPill = 'bg-rose-50 text-rose-700 border-rose-200';
+
     const qty = getOrderActualQty(order);
     const amount = getOrderTotalAmount(order);
     const cashback = getOrderCashback(order);
@@ -863,7 +690,6 @@ function renderOrderDetailPage(order) {
     const supplier = allSuppliers.find(s => s.id === order.supplier_id);
     const supplierName = supplier?.name || 'International Supplier';
 
-    // Factory identification (Only Name, No Address)
     const isDifferentFactory = order.portal_customer_id && Number(order.portal_customer_id) === Number(currentCustomer.id) && Number(order.customer_id) !== Number(currentCustomer.id);
     const factoryCustomer = isDifferentFactory ? allCustomers.find(c => c.id === Number(order.customer_id)) : currentCustomer;
     const factoryName = factoryCustomer?.name || currentCustomer.name;
@@ -873,8 +699,8 @@ function renderOrderDetailPage(order) {
             <!-- Top Navigation & Print Order Button -->
             <div class="flex items-center justify-between pb-3 border-b border-gray-200">
                 <button onclick="navigateBackToOrdersList()" 
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Orders
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Order List
                 </button>
                 <div class="flex items-center gap-2">
                     <button onclick="printOrderInvoiceLegacy(${order.id})" 
@@ -885,46 +711,46 @@ function renderOrderDetailPage(order) {
                 </div>
             </div>
 
-            <!-- Order Header Card (Clean Names: Supplier & Factory) -->
-            <div class="bg-gradient-to-r from-navy-950 to-navy-900 text-white p-4 sm:p-6 rounded-2xl border border-navy-800 shadow-md">
-                <div class="flex flex-wrap items-center justify-between gap-3">
+            <!-- Order Header Card (Clean, Simple, Professional) -->
+            <div class="bg-gradient-to-r from-navy-950 to-navy-900 text-white p-5 sm:p-6 rounded-2xl border border-navy-800 shadow-md">
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                        <div class="flex items-center gap-2 flex-wrap mb-1.5">
                             <span class="text-xs uppercase tracking-widest text-brand-gold font-bold">Roza Indent Order</span>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/10 text-white border border-white/20">${status}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusPill}">${status}</span>
                             ${isDifferentFactory ? `
-                                <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-400 text-navy-950">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-navy-950">
                                     Factory: ${factoryName}
                                 </span>
                             ` : ''}
                         </div>
-                        <h2 class="text-xl sm:text-2xl font-extrabold font-display">Order #${order.id}</h2>
-                        <div class="text-xs text-gray-300 mt-1 space-y-0.5">
-                            <p><strong>Factory / Customer:</strong> <span class="text-white font-semibold">${factoryName}</span></p>
-                            <p><strong>Supplier:</strong> <span class="text-white font-semibold">${supplierName}</span></p>
-                            <p><strong>Date:</strong> ${order.order_date || 'N/A'} ${order.lc_no ? `· <strong>LC:</strong> ${order.lc_no}` : ''} · <strong>PI:</strong> ${piDisplay}</p>
+                        <h2 class="text-2xl font-extrabold font-display">Order #${order.id}</h2>
+                        <div class="text-xs text-gray-300 mt-1.5 space-y-1">
+                            <p><strong>Factory:</strong> <span class="text-white">${factoryName}</span></p>
+                            <p><strong>Supplier:</strong> <span class="text-white">${supplierName}</span></p>
+                            <p><strong>Order Date:</strong> ${order.order_date || 'N/A'}${order.lc_no ? ` · <strong>LC:</strong> ${order.lc_no}` : ''} · <strong>PI:</strong> ${piDisplay}</p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 text-right bg-white/10 p-3 rounded-xl border border-white/15">
+                    <div class="grid grid-cols-2 gap-3 text-right bg-white/10 p-3.5 rounded-xl border border-white/15">
                         <div>
-                            <p class="text-[9px] uppercase font-bold text-gray-300">Quantity</p>
-                            <p class="text-base sm:text-lg font-extrabold text-white">${qty.toFixed(2)} MT</p>
+                            <p class="text-[10px] uppercase font-bold text-gray-300">Total Quantity</p>
+                            <p class="text-lg sm:text-xl font-extrabold text-white">${qty.toFixed(2)} MT</p>
                         </div>
                         <div>
-                            <p class="text-[9px] uppercase font-bold text-gray-300">Total Value</p>
-                            <p class="text-base sm:text-lg font-extrabold text-emerald-400">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                            <p class="text-[10px] uppercase font-bold text-gray-300">Total USD</p>
+                            <p class="text-lg sm:text-xl font-extrabold text-emerald-400">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Product Specifications Table -->
+            <!-- Ordered Products Table (Clear, Clean Columns) -->
             <div>
                 <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700 mb-2 font-display">
-                    Ordered Products &amp; Specifications
+                    Products &amp; Specifications
                 </h3>
-                <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-xs">
+                <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-xs">
                     <table class="w-full text-left text-xs min-w-[500px]">
                         <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase font-semibold text-[10px]">
                             <tr>
@@ -966,32 +792,31 @@ function renderOrderDetailPage(order) {
                 </div>
             </div>
 
-            <!-- Shipment Milestones & Details (Exact replication of Mac App shipment details) -->
+            <!-- Shipment & Milestone Info Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="p-4 bg-white rounded-xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
+                <div class="p-4 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
                     <span class="text-[10px] font-bold uppercase text-gray-400">LC &amp; PI Details</span>
-                    <p><strong>LC Number:</strong> ${order.lc_no || 'Not updated'}</p>
+                    <p><strong>LC Number:</strong> ${order.lc_no || 'Pending'}</p>
                     <p><strong>PI 1:</strong> ${order.pi1 || 'N/A'} ${order.bl1 ? `· <strong>BL 1:</strong> ${order.bl1}` : ''}</p>
                     ${order.bl_count === 2 ? `<p><strong>PI 2:</strong> ${order.pi2 || 'N/A'} ${order.bl2 ? `· <strong>BL 2:</strong> ${order.bl2}` : ''}</p>` : ''}
                 </div>
 
-                <div class="p-4 bg-white rounded-xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
+                <div class="p-4 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
                     <span class="text-[10px] font-bold uppercase text-gray-400">Shipment Milestones</span>
                     <p><strong>ETD (Shipment):</strong> ${order.shipment_date_1 || order.shipment_date || 'N/A'}</p>
                     <p><strong>ETA (Arrival Date):</strong> <span class="font-bold text-blue-700">${order.etd_1 || order.etd || 'N/A'}</span></p>
-                    <p><strong>DHL Tracking:</strong> ${order.dhl_tracking_1 || order.dhl_tracking || 'N/A'}</p>
+                    <p><strong>DHL Express:</strong> ${order.dhl_tracking_1 || order.dhl_tracking || 'N/A'}</p>
                 </div>
 
-                <div class="p-4 bg-white rounded-xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
-                    <span class="text-[10px] font-bold uppercase text-gray-400">Commercial &amp; Cashback</span>
-                    <p><strong>Cashback Rate:</strong> ${order.cashback_rate ? `$${order.cashback_rate} / MT` : 'None'}</p>
-                    <p><strong>Total Cashback:</strong> <span class="font-bold text-pink-600">$${cashback.toFixed(2)}</span></p>
+                <div class="p-4 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-gray-400">Commercial &amp; Tracking</span>
+                    <p><strong>Cashback:</strong> <span class="font-bold text-pink-600">${cashback > 0 ? `$${cashback.toFixed(2)}` : 'None'}</span></p>
                     ${order.tracking_link ? `
                         <p class="truncate pt-1">
                             <strong>Live Tracking:</strong> 
                             <a href="${order.tracking_link}" target="_blank" class="text-blue-600 underline">Track Vessel Link</a>
                         </p>
-                    ` : ''}
+                    ` : '<p class="text-gray-400">Vessel tracking link not assigned yet.</p>'}
                 </div>
             </div>
 
