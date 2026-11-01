@@ -4,11 +4,12 @@ const SB_KEY = 'sb_publishable_9OXdSbpr3mrb5QqYK29oog_ugQ53GMh';
 
 let currentCustomer = null;
 let customerOrders = [];
+let allCustomers = [];
 let allProducts = [];
 let allSuppliers = [];
 let searchQuery = '';
 let statusFilter = 'ALL';
-let expandedOrderId = null;
+let currentViewingOrderId = null;
 
 // Company info for invoice/memo
 const COMPANY = {
@@ -30,6 +31,7 @@ function closeCustomerPortalModal() {
 function customerPortalLogout() {
     currentCustomer = null;
     customerOrders = [];
+    currentViewingOrderId = null;
     sessionStorage.removeItem('roza_portal_cust');
     const headerLogout = document.getElementById('portalHeaderLogoutBtn');
     if (headerLogout) headerLogout.classList.add('hidden');
@@ -40,7 +42,7 @@ function renderPortalLogin() {
     const content = document.getElementById('customerPortalBody');
     if (!content) return;
     content.innerHTML = `
-        <div class="max-w-md mx-auto py-6 sm:py-10">
+        <div class="max-w-md mx-auto py-4 sm:py-8">
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mb-3 border border-blue-100 shadow-xs">
                     <i data-lucide="shield-check" class="w-7 h-7"></i>
@@ -49,7 +51,7 @@ function renderPortalLogin() {
                 <p class="text-xs sm:text-sm text-gray-500 mt-1">Log in with your Phone Number or Email & Password assigned by Roza International.</p>
             </div>
 
-            <form id="portalLoginForm" onsubmit="handlePortalLogin(event)" class="bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-xs space-y-4">
+            <form id="portalLoginForm" onsubmit="handlePortalLogin(event)" class="bg-gray-50 p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-xs space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Phone Number or Email</label>
                     <div class="relative">
@@ -134,6 +136,10 @@ async function handlePortalLogin(e) {
         sessionStorage.setItem('roza_portal_cust', JSON.stringify(found));
         const headerLogout = document.getElementById('portalHeaderLogoutBtn');
         if (headerLogout) headerLogout.classList.remove('hidden');
+        
+        // Request Web Browser Notification Permission
+        requestNotificationPermission();
+
         await renderPortalDashboard();
     } catch (err) {
         if (errBox) {
@@ -149,6 +155,24 @@ async function handlePortalLogin(e) {
     }
 }
 
+// Request Browser Web Notifications
+function requestNotificationPermission() {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        Notification.requestPermission().catch(() => {});
+    }
+}
+
+function triggerBrowserNotification(title, body) {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        try {
+            new Notification(title, {
+                body,
+                icon: '/static/favicon.ico'
+            });
+        } catch (e) {}
+    }
+}
+
 async function renderPortalDashboard() {
     const content = document.getElementById('customerPortalBody');
     if (!content) return;
@@ -161,7 +185,7 @@ async function renderPortalDashboard() {
     `;
 
     try {
-        const [ordersRes, prodsRes, suppsRes] = await Promise.all([
+        const [ordersRes, prodsRes, suppsRes, custsRes] = await Promise.all([
             fetch(`${SB_URL}/rest/v1/app_data?key=eq.agent_orders&select=data`, {
                 headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
             }),
@@ -170,28 +194,41 @@ async function renderPortalDashboard() {
             }),
             fetch(`${SB_URL}/rest/v1/app_data?key=eq.agent_suppliers&select=data`, {
                 headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+            }),
+            fetch(`${SB_URL}/rest/v1/app_data?key=eq.agent_customers&select=data`, {
+                headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
             })
         ]);
 
-        const [orderRows, prodRows, suppRows] = await Promise.all([
+        const [orderRows, prodRows, suppRows, custRows] = await Promise.all([
             ordersRes.json(),
             prodsRes.json(),
-            suppsRes.json()
+            suppsRes.json(),
+            custsRes.json()
         ]);
 
         const allOrders = (Array.isArray(orderRows) && orderRows[0]?.data) ? orderRows[0].data : [];
         allProducts = (Array.isArray(prodRows) && prodRows[0]?.data) ? prodRows[0].data : [];
         allSuppliers = (Array.isArray(suppRows) && suppRows[0]?.data) ? suppRows[0].data : [];
+        allCustomers = (Array.isArray(custRows) && custRows[0]?.data) ? custRows[0].data : [];
 
-        customerOrders = allOrders.filter(o => 
-            Number(o.customer_id) === Number(currentCustomer.id) &&
-            o.portal_visible !== false
-        ).sort((a, b) => (b.order_date || '').localeCompare(a.order_date || ''));
+        // Support direct customer matching OR Different Factory / Sister Concern shared order matching
+        customerOrders = allOrders.filter(o => {
+            if (o.portal_visible === false) return false;
+            const isDirectCustomer = Number(o.customer_id) === Number(currentCustomer.id);
+            const isSharedPortalCustomer = o.portal_customer_id && Number(o.portal_customer_id) === Number(currentCustomer.id);
+            return isDirectCustomer || isSharedPortalCustomer;
+        }).sort((a, b) => (b.order_date || '').localeCompare(a.order_date || ''));
 
         const headerLogout = document.getElementById('portalHeaderLogoutBtn');
         if (headerLogout) headerLogout.classList.remove('hidden');
 
-        renderOrdersList();
+        // Check for new orders or shipment notifications to trigger browser push
+        checkAndDispatchNotifications(customerOrders);
+
+        // Check if URL has a hash like #order-12 or query param like ?pi=123
+        handleRouteCheck();
+
     } catch (err) {
         content.innerHTML = `
             <div class="p-8 text-center text-rose-600 bg-rose-50 rounded-2xl border border-rose-200">
@@ -254,7 +291,7 @@ function getShipmentAlerts(orders) {
             if (!order.part2_delivered && order.etd_2) etaList.push({ part: 'Part 2', date: order.etd_2, bl: order.bl2 });
         } else {
             const d = order.etd_1 || order.etd;
-            if (d) etaList.push({ part: 'Full Shipment', date: d, bl: order.bl1 || order.bl_no });
+            if (d) etaList.push({ part: 'Shipment', date: d, bl: order.bl1 || order.bl_no });
         }
 
         etaList.forEach(item => {
@@ -291,6 +328,101 @@ function getShipmentAlerts(orders) {
     return alerts;
 }
 
+// Notification Check (New Orders & 7-Day Daily Shipment Alert)
+function checkAndDispatchNotifications(orders) {
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    // 1. Check for newly assigned orders
+    const knownKey = `roza_cust_${currentCustomer.id}_known_orders`;
+    const knownRaw = localStorage.getItem(knownKey);
+    const knownIds = knownRaw ? JSON.parse(knownRaw) : [];
+
+    const newOrders = orders.filter(o => !knownIds.includes(o.id));
+    if (newOrders.length > 0 && knownIds.length > 0) {
+        newOrders.forEach(o => {
+            triggerBrowserNotification(
+                `🆕 New Order Assigned #${o.id}`,
+                `A new indent order #${o.id} is now available in your portal (PI: ${o.pi1 || o.pi_no || 'Pending'}).`
+            );
+        });
+    }
+    // Update known orders
+    localStorage.setItem(knownKey, JSON.stringify(orders.map(o => o.id)));
+
+    // 2. 7-Day daily shipment notification
+    const alerts = getShipmentAlerts(orders);
+    alerts.forEach(a => {
+        const notifKey = `ship_alert_${currentCustomer.id}_${a.orderId}_${a.part}_${todayStr}`;
+        if (!localStorage.getItem(notifKey)) {
+            localStorage.setItem(notifKey, '1');
+            triggerBrowserNotification(
+                a.days <= 0 ? `🚨 Shipment Arrival: Order #${a.orderId}` : `🚢 Ship Approaching: Order #${a.orderId}`,
+                a.msg
+            );
+        }
+    });
+}
+
+// Routing handler for separate page /order/?pi=... or /order/#pi-...
+function handleRouteCheck() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const piParam = urlParams.get('pi');
+    const orderParam = urlParams.get('id');
+    const hash = window.location.hash;
+
+    let targetOrder = null;
+    if (orderParam) {
+        targetOrder = customerOrders.find(o => String(o.id) === String(orderParam));
+    } else if (piParam) {
+        targetOrder = customerOrders.find(o => 
+            (o.pi1 && o.pi1.toLowerCase() === piParam.toLowerCase()) || 
+            (o.pi2 && o.pi2.toLowerCase() === piParam.toLowerCase()) || 
+            (o.pi_no && o.pi_no.toLowerCase() === piParam.toLowerCase())
+        );
+    } else if (hash.startsWith('#order-')) {
+        const id = hash.replace('#order-', '');
+        targetOrder = customerOrders.find(o => String(o.id) === String(id));
+    } else if (hash.startsWith('#pi-')) {
+        const pi = decodeURIComponent(hash.replace('#pi-', ''));
+        targetOrder = customerOrders.find(o => 
+            (o.pi1 && o.pi1.toLowerCase() === pi.toLowerCase()) || 
+            (o.pi2 && o.pi2.toLowerCase() === pi.toLowerCase()) || 
+            (o.pi_no && o.pi_no.toLowerCase() === pi.toLowerCase())
+        );
+    }
+
+    if (targetOrder) {
+        navigateToOrderDetail(targetOrder.id);
+    } else {
+        renderOrdersList();
+    }
+}
+
+// Navigate into Dedicated Order Detail Page
+function navigateToOrderDetail(orderId) {
+    currentViewingOrderId = orderId;
+    const order = customerOrders.find(o => o.id === orderId);
+    if (!order) {
+        renderOrdersList();
+        return;
+    }
+
+    const piSlug = encodeURIComponent((order.pi1 || order.pi_no || `order-${order.id}`).replace(/\s+/g, '-'));
+    window.history.pushState({ orderId }, '', `?pi=${piSlug}`);
+    renderOrderDetailPage(order);
+}
+
+// Back to orders list view
+function navigateBackToOrdersList() {
+    currentViewingOrderId = null;
+    window.history.pushState({}, '', '/order/');
+    renderOrdersList();
+}
+
+window.onpopstate = function() {
+    handleRouteCheck();
+};
+
 function renderOrdersList() {
     const content = document.getElementById('customerPortalBody');
     if (!content) return;
@@ -321,60 +453,57 @@ function renderOrdersList() {
     const shipmentAlerts = getShipmentAlerts(customerOrders);
 
     content.innerHTML = `
-        <div class="space-y-6">
-            <!-- Customer Welcome Header -->
-            <div class="bg-gradient-to-r from-navy-950 via-navy-900 to-brand-blue text-white rounded-2xl p-5 sm:p-6 shadow-md border border-navy-800 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-2 mb-1.5">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-gold/25 text-brand-gold border border-brand-gold/40">
-                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Verified Client Portal
+        <div class="space-y-5">
+            <!-- Customer Welcome Header (Mobile Optimized) -->
+            <div class="bg-gradient-to-r from-navy-950 via-navy-900 to-brand-blue text-white rounded-2xl p-4 sm:p-6 shadow-md border border-navy-800 flex flex-wrap items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-gold/25 text-brand-gold border border-brand-gold/40">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Client Portal
                         </span>
-                        <span class="text-xs text-blue-200">ID: #${currentCustomer.id}</span>
                     </div>
-                    <h2 class="text-xl sm:text-2xl font-bold font-display">${currentCustomer.name}</h2>
-                    <p class="text-xs text-gray-300 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                        ${currentCustomer.owner ? `<span><strong class="text-white">Contact:</strong> ${currentCustomer.owner}</span>` : ''}
-                        ${currentCustomer.phone ? `<span><strong class="text-white">Phone:</strong> ${currentCustomer.phone}</span>` : ''}
-                        ${currentCustomer.email ? `<span><strong class="text-white">Email:</strong> ${currentCustomer.email}</span>` : ''}
+                    <h2 class="text-lg sm:text-2xl font-bold font-display truncate">${currentCustomer.name}</h2>
+                    <p class="text-xs text-gray-300 mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
+                        ${currentCustomer.phone ? `<span>📞 ${currentCustomer.phone}</span>` : ''}
+                        ${currentCustomer.email ? `<span>✉️ ${currentCustomer.email}</span>` : ''}
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="renderPortalDashboard()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 flex items-center gap-1.5 transition">
+                    <button onclick="renderPortalDashboard()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 flex items-center gap-1.5 transition">
                         <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
                     </button>
-                    <button onclick="customerPortalLogout()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 flex items-center gap-1.5 transition">
+                    <button onclick="customerPortalLogout()" class="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 flex items-center gap-1.5 transition">
                         <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Log Out
                     </button>
                 </div>
             </div>
 
-            <!-- Shipment Alerts Section (Same as Mobile/Mac App) -->
+            <!-- Shipment Alerts Section -->
             ${shipmentAlerts.length > 0 ? `
-                <div class="bg-amber-50/80 border-2 border-amber-300/80 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+                <div class="bg-amber-50/90 border border-amber-300 rounded-2xl p-3.5 sm:p-4 shadow-xs space-y-2.5">
                     <div class="flex items-center gap-2">
-                        <div class="p-2 rounded-xl bg-amber-500 text-white animate-pulse">
-                            <i data-lucide="bell-ring" class="w-5 h-5"></i>
+                        <div class="p-1.5 rounded-lg bg-amber-500 text-white animate-pulse">
+                            <i data-lucide="bell-ring" class="w-4 h-4"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-sm text-amber-950 font-display">Shipment &amp; ETA Alerts (${shipmentAlerts.length})</h4>
-                            <p class="text-xs text-amber-800">Real-time status of approaching vessel shipments</p>
+                            <h4 class="font-bold text-xs sm:text-sm text-amber-950 font-display">Shipment &amp; ETA Alerts (${shipmentAlerts.length})</h4>
+                            <p class="text-[11px] text-amber-800">Live ETA notices for approaching vessel containers</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-0.5">
                         ${shipmentAlerts.map(alert => `
-                            <div class="p-3 bg-white rounded-xl border ${alert.type === 'danger' ? 'border-rose-300 bg-rose-50/30' : 'border-amber-200'} flex items-start justify-between gap-3 text-xs">
-                                <div class="space-y-1">
+                            <div class="p-2.5 bg-white rounded-xl border ${alert.type === 'danger' ? 'border-rose-300 bg-rose-50/30' : 'border-amber-200'} flex items-center justify-between gap-2 text-xs">
+                                <div class="min-w-0 pr-2">
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-bold text-gray-900">Order #${alert.orderId}</span>
-                                        <span class="px-2 py-0.5 rounded-md font-bold text-[10px] ${alert.type === 'danger' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${alert.type === 'danger' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">
                                             ${alert.badge}
                                         </span>
                                     </div>
-                                    <p class="text-gray-700">${alert.msg}</p>
-                                    <p class="text-[11px] text-gray-400">ETA: <strong class="text-gray-700">${alert.etaDate}</strong> ${alert.bl ? '· BL: ' + alert.bl : ''}</p>
+                                    <p class="text-gray-700 text-[11px] truncate">${alert.msg}</p>
                                 </div>
-                                <button onclick="toggleExpandOrder(${alert.orderId})" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-[11px] shrink-0">
-                                    View
+                                <button onclick="navigateToOrderDetail(${alert.orderId})" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-[11px] shrink-0">
+                                    Open
                                 </button>
                             </div>
                         `).join('')}
@@ -383,44 +512,44 @@ function renderOrdersList() {
             ` : ''}
 
             <!-- Summary KPI Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Orders</p>
-                    <p class="text-2xl font-extrabold text-gray-900 mt-1">${customerOrders.length}</p>
-                    <p class="text-[11px] text-gray-500 mt-0.5">${deliveredCount} Delivered</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200 shadow-xs">
+                    <p class="text-[10px] uppercase font-bold text-gray-400">Total Orders</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-0.5">${customerOrders.length}</p>
+                    <p class="text-[10px] text-gray-500">${deliveredCount} Delivered</p>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Quantity</p>
-                    <p class="text-2xl font-extrabold text-blue-600 mt-1">${grandQty.toFixed(2)}</p>
-                    <p class="text-[11px] text-gray-500 mt-0.5">Metric Tons (MT)</p>
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200 shadow-xs">
+                    <p class="text-[10px] uppercase font-bold text-gray-400">Total Quantity</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-blue-600 mt-0.5">${grandQty.toFixed(2)}</p>
+                    <p class="text-[10px] text-gray-500">Metric Tons (MT)</p>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-gray-400">Total Order Value</p>
-                    <p class="text-2xl font-extrabold text-emerald-600 mt-1">$${grandAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                    <p class="text-[11px] text-gray-500 mt-0.5">USD Gross Total</p>
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200 shadow-xs">
+                    <p class="text-[10px] uppercase font-bold text-gray-400">Order Value</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-0.5">$${grandAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p class="text-[10px] text-gray-500">USD Gross</p>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-pink-100 bg-pink-50/20 shadow-xs">
-                    <p class="text-[11px] uppercase font-bold text-pink-700">Cashback</p>
-                    <p class="text-2xl font-extrabold text-pink-600 mt-1">$${grandCashback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                    <p class="text-[11px] text-pink-800 mt-0.5">Total Cashback</p>
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-pink-100 bg-pink-50/20 shadow-xs">
+                    <p class="text-[10px] uppercase font-bold text-pink-700">Cashback</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-pink-600 mt-0.5">$${grandCashback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p class="text-[10px] text-pink-800">Total Cashback</p>
                 </div>
             </div>
 
             <!-- Controls: Search & Status Filters -->
-            <div class="bg-gray-50 p-3 sm:p-4 rounded-2xl border border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="bg-gray-50 p-2.5 sm:p-3 rounded-2xl border border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
                 <!-- Search Box -->
                 <div class="relative flex-1">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
                     <input type="text" id="portalSearchInput" value="${searchQuery}" oninput="handleSearchChange(event)"
-                           placeholder="Search by LC Number, PI Number, Order #, or Product..." 
-                           class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
+                           placeholder="Search LC Number, PI Number, Order #..." 
+                           class="w-full pl-9 pr-3.5 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none bg-white">
                 </div>
 
                 <!-- Status Filter Pills -->
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                <div class="flex items-center gap-1 overflow-x-auto pb-0.5">
                     ${['ALL', 'Pending', 'In Production', 'Shipped', 'Delivered'].map(st => `
                         <button onclick="handleStatusFilterChange('${st}')" 
-                                class="px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${statusFilter === st ? 'bg-blue-600 text-white shadow-xs' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}">
+                                class="px-2.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${statusFilter === st ? 'bg-blue-600 text-white shadow-xs' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}">
                             ${st}
                         </button>
                     `).join('')}
@@ -429,24 +558,23 @@ function renderOrdersList() {
 
             <!-- Orders Listing -->
             <div>
-                <div class="flex items-center justify-between mb-3 px-1">
-                    <h3 class="font-bold text-sm text-gray-800 uppercase tracking-wider font-display">
-                        Orders (${filteredOrders.length}${filteredOrders.length !== customerOrders.length ? ` of ${customerOrders.length}` : ''})
+                <div class="flex items-center justify-between mb-2.5 px-1">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700 font-display">
+                        My Orders (${filteredOrders.length})
                     </h3>
-                    <span class="text-xs text-gray-400">Click any card to expand full details</span>
+                    <span class="text-[11px] text-gray-400">Click any card to open full page</span>
                 </div>
 
                 ${filteredOrders.length === 0 ? `
-                    <div class="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-10 text-center text-gray-500">
-                        <i data-lucide="search-x" class="w-10 h-10 mx-auto text-gray-400 mb-2"></i>
-                        <p class="font-bold text-sm">No orders matching your search</p>
-                        <p class="text-xs text-gray-400 mt-1">Try searching with a different LC Number, PI Number or clear filters.</p>
+                    <div class="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-8 text-center text-gray-500">
+                        <i data-lucide="search-x" class="w-9 h-9 mx-auto text-gray-400 mb-2"></i>
+                        <p class="font-bold text-xs sm:text-sm">No orders matching your criteria</p>
                         ${(searchQuery || statusFilter !== 'ALL') ? `
-                            <button onclick="clearSearchFilters()" class="mt-3 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold text-xs">Clear Filters</button>
+                            <button onclick="clearSearchFilters()" class="mt-2.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold text-xs">Clear Filters</button>
                         ` : ''}
                     </div>
                 ` : `
-                    <div class="space-y-3">
+                    <div class="space-y-2">
                         ${filteredOrders.map(order => renderOrderCompactCard(order)).join('')}
                     </div>
                 `}
@@ -472,17 +600,7 @@ function clearSearchFilters() {
     renderOrdersList();
 }
 
-function toggleExpandOrder(orderId) {
-    if (expandedOrderId === orderId) {
-        expandedOrderId = null;
-    } else {
-        expandedOrderId = orderId;
-    }
-    renderOrdersList();
-}
-
 function renderOrderCompactCard(order) {
-    const isExpanded = expandedOrderId === order.id;
     const status = order.status || 'Pending';
     let statusClass = 'bg-amber-50 text-amber-700 border-amber-200';
     if (status === 'Delivered') statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -494,218 +612,290 @@ function renderOrderCompactCard(order) {
     const amount = getOrderTotalAmount(order);
     const cashback = getOrderCashback(order);
     const piDisplay = order.pi1 ? (order.bl_count === 2 && order.pi2 ? `${order.pi1} / ${order.pi2}` : order.pi1) : (order.pi_no || 'N/A');
-    const items = order.items || [];
-    const files = order.files || [];
-    const notes = order.customer_notes || [];
+
+    // Check if this order is from a different factory / sister concern
+    const isDifferentFactory = order.portal_customer_id && Number(order.portal_customer_id) === Number(currentCustomer.id) && Number(order.customer_id) !== Number(currentCustomer.id);
+    const actualFactoryCustomer = isDifferentFactory ? allCustomers.find(c => c.id === Number(order.customer_id)) : null;
 
     return `
-        <div class="bg-white rounded-xl border ${isExpanded ? 'border-blue-500 shadow-md ring-1 ring-blue-500/20' : 'border-gray-200 hover:border-gray-300 shadow-xs'} transition overflow-hidden">
-            <!-- Compact Header (Always Visible) -->
-            <div onclick="toggleExpandOrder(${order.id})" class="p-4 sm:p-4.5 cursor-pointer flex flex-wrap items-center justify-between gap-3 select-none">
-                <!-- Left: Order ID & Date -->
-                <div class="flex items-center gap-3 min-w-[200px]">
-                    <div class="w-10 h-10 rounded-xl ${status === 'Delivered' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200'} border flex items-center justify-center font-bold text-sm shrink-0">
+        <div onclick="navigateToOrderDetail(${order.id})" 
+             class="bg-white rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-sm transition cursor-pointer p-3 sm:p-4 select-none">
+            <div class="flex items-center justify-between gap-2.5">
+                <!-- Left: Order ID & Details -->
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${status === 'Delivered' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200'} border flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">
                         #${order.id}
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-extrabold text-sm text-gray-900">Order #${order.id}</span>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-extrabold text-xs sm:text-sm text-gray-900">#${order.id}</span>
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusClass}">
                                 ${status}
                             </span>
+                            ${isDifferentFactory ? `
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                    Factory: ${actualFactoryCustomer?.name || 'Different Factory'}
+                                </span>
+                            ` : ''}
                         </div>
-                        <div class="text-[11px] text-gray-500 mt-0.5 flex flex-wrap items-center gap-x-2">
-                            <span>Date: <strong class="text-gray-700">${order.order_date || 'N/A'}</strong></span>
-                            ${order.lc_no ? `<span class="text-blue-700 font-semibold">· LC: ${order.lc_no}</span>` : ''}
-                            ${piDisplay !== 'N/A' ? `<span class="text-gray-600">· PI: ${piDisplay}</span>` : ''}
+                        <div class="text-[11px] text-gray-500 mt-0.5 truncate">
+                            <span>Date: ${order.order_date || 'N/A'}</span>
+                            ${order.lc_no ? `<span class="text-blue-700 font-semibold ml-1.5">LC: ${order.lc_no}</span>` : ''}
+                            ${piDisplay !== 'N/A' ? `<span class="text-gray-600 ml-1.5">PI: ${piDisplay}</span>` : ''}
                         </div>
                     </div>
                 </div>
 
-                <!-- Middle: Key Metrics (Qty, Amount, Cashback) -->
-                <div class="flex items-center gap-4 sm:gap-6 text-right">
+                <!-- Right: Numbers & Arrow -->
+                <div class="flex items-center gap-3 sm:gap-5 shrink-0 text-right">
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Quantity</p>
-                        <p class="text-xs sm:text-sm font-extrabold text-gray-900">${qty.toFixed(2)} <span class="text-[10px] font-semibold text-gray-500">MT</span></p>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">Quantity</p>
+                        <p class="text-xs sm:text-sm font-extrabold text-gray-900">${qty.toFixed(2)} <span class="text-[10px] font-normal text-gray-500">MT</span></p>
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Amount</p>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">Amount</p>
                         <p class="text-xs sm:text-sm font-extrabold text-emerald-700">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     </div>
                     ${cashback > 0 ? `
                         <div class="hidden sm:block">
-                            <p class="text-[10px] font-bold text-pink-700 uppercase">Cashback</p>
+                            <p class="text-[9px] font-bold text-pink-700 uppercase">Cashback</p>
                             <p class="text-xs sm:text-sm font-extrabold text-pink-600">$${cashback.toFixed(2)}</p>
                         </div>
                     ` : ''}
+                    <div class="p-1 rounded-lg bg-gray-50 text-gray-400 hover:text-blue-600">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </div>
                 </div>
+            </div>
+        </div>
+    `;
+}
 
-                <!-- Right: Quick Actions -->
+// Full Dedicated Order Details Page
+function renderOrderDetailPage(order) {
+    const content = document.getElementById('customerPortalBody');
+    if (!content) return;
+
+    const status = order.status || 'Pending';
+    let statusClass = 'bg-amber-50 text-amber-700 border-amber-200';
+    if (status === 'Delivered') statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    else if (status === 'Shipped') statusClass = 'bg-blue-50 text-blue-700 border-blue-200';
+    else if (status === 'Cancelled') statusClass = 'bg-rose-50 text-rose-700 border-rose-200';
+    else if (status === 'In Production') statusClass = 'bg-purple-50 text-purple-700 border-purple-200';
+
+    const qty = getOrderActualQty(order);
+    const amount = getOrderTotalAmount(order);
+    const cashback = getOrderCashback(order);
+    const items = order.items || [];
+    const files = order.files || [];
+    const notes = order.customer_notes || [];
+    const piDisplay = order.pi1 ? (order.bl_count === 2 && order.pi2 ? `${order.pi1} / ${order.pi2}` : order.pi1) : (order.pi_no || 'N/A');
+
+    // Factory origin check
+    const isDifferentFactory = order.portal_customer_id && Number(order.portal_customer_id) === Number(currentCustomer.id) && Number(order.customer_id) !== Number(currentCustomer.id);
+    const actualFactoryCustomer = isDifferentFactory ? allCustomers.find(c => c.id === Number(order.customer_id)) : null;
+
+    content.innerHTML = `
+        <div class="space-y-6 animate-fade-in">
+            <!-- Breadcrumbs / Top Actions -->
+            <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                <button onclick="navigateBackToOrdersList()" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to All Orders
+                </button>
                 <div class="flex items-center gap-2">
-                    <button onclick="event.stopPropagation(); printOrderInvoiceLegacy(${order.id})" 
-                            title="Print Original App Design Invoice / Memo" 
-                            class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
-                        <i data-lucide="printer" class="w-4 h-4"></i>
+                    <button onclick="printOrderInvoiceLegacy(${order.id})" 
+                            class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                        <span>Print Order</span>
                     </button>
-                    <div class="p-2 rounded-lg ${isExpanded ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'} transition">
-                        <i data-lucide="${isExpanded ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4"></i>
+                </div>
+            </div>
+
+            <!-- Order Header Card -->
+            <div class="bg-gradient-to-r from-navy-950 to-navy-900 text-white p-4 sm:p-6 rounded-2xl border border-navy-800 shadow-md">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            <span class="text-xs uppercase tracking-widest text-brand-gold font-bold">Roza Indent Order</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusClass}">${status}</span>
+                            ${isDifferentFactory ? `
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-navy-950">
+                                    Factory: ${actualFactoryCustomer?.name || 'Different Factory'}
+                                </span>
+                            ` : ''}
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-extrabold font-display">Order #${order.id}</h2>
+                        <p class="text-xs text-gray-300 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <span><strong>Date:</strong> ${order.order_date || 'N/A'}</span>
+                            ${order.lc_no ? `<span><strong>LC No:</strong> ${order.lc_no}</span>` : ''}
+                            <span><strong>PI:</strong> ${piDisplay}</span>
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-right bg-white/10 p-3 rounded-xl border border-white/15">
+                        <div>
+                            <p class="text-[9px] uppercase font-bold text-gray-300">Quantity</p>
+                            <p class="text-base sm:text-lg font-extrabold text-white">${qty.toFixed(2)} MT</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] uppercase font-bold text-gray-300">Total Value</p>
+                            <p class="text-base sm:text-lg font-extrabold text-emerald-400">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Expanded Details View -->
-            ${isExpanded ? `
-                <div class="border-t border-gray-100 p-4 sm:p-6 bg-slate-50/50 space-y-5 animate-fade-in">
-                    <!-- Order Items Table -->
-                    <div>
-                        <h4 class="font-bold text-xs uppercase tracking-wider text-gray-700 mb-2 font-display flex items-center justify-between">
-                            <span>Ordered Items &amp; Specifications</span>
-                            <span class="text-gray-400 font-normal">Delivery State: ${status}</span>
-                        </h4>
-                        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase font-semibold text-[10px]">
+            <!-- Product Specifications Table -->
+            <div>
+                <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700 mb-2 font-display">
+                    Items &amp; Product Specifications
+                </h3>
+                <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-xs">
+                    <table class="w-full text-left text-xs min-w-[500px]">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase font-semibold text-[10px]">
+                            <tr>
+                                <th class="p-3">Product Name</th>
+                                <th class="p-3">Size</th>
+                                <th class="p-3">GSM</th>
+                                <th class="p-3">Packing</th>
+                                <th class="p-3 text-right">Quantity</th>
+                                <th class="p-3 text-right">Unit Price</th>
+                                <th class="p-3 text-right">Total USD</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            ${items.map(it => {
+                                const q = parseFloat(it.quantity) || 0;
+                                const p = parseFloat(it.price) || 0;
+                                return `
                                     <tr>
-                                        <th class="p-2.5">Item Description</th>
-                                        <th class="p-2.5">Size</th>
-                                        <th class="p-2.5">GSM</th>
-                                        <th class="p-2.5">Packing</th>
-                                        <th class="p-2.5 text-right">Quantity</th>
-                                        <th class="p-2.5 text-right">Unit Price</th>
-                                        <th class="p-2.5 text-right">Total USD</th>
+                                        <td class="p-3 font-bold text-gray-900">${it.product_name || it.product_id || 'Paper / Board'}</td>
+                                        <td class="p-3 text-gray-600">${it.size || '—'}</td>
+                                        <td class="p-3 text-gray-600">${it.gsm ? it.gsm + ' GSM' : '—'}</td>
+                                        <td class="p-3 text-gray-600">${it.unit_type || 'REEL'}</td>
+                                        <td class="p-3 text-right font-bold">${q.toFixed(2)} MT</td>
+                                        <td class="p-3 text-right text-gray-700">$${p.toFixed(2)}</td>
+                                        <td class="p-3 text-right font-extrabold text-gray-900">$${(q * p).toFixed(2)}</td>
                                     </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    ${items.map(it => {
-                                        const q = parseFloat(it.quantity) || 0;
-                                        const p = parseFloat(it.price) || 0;
-                                        return `
-                                            <tr>
-                                                <td class="p-2.5 font-bold text-gray-900">${it.product_name || it.product_id || 'Paper / Board'}</td>
-                                                <td class="p-2.5 text-gray-600">${it.size || '—'}</td>
-                                                <td class="p-2.5 text-gray-600">${it.gsm ? it.gsm + ' GSM' : '—'}</td>
-                                                <td class="p-2.5 text-gray-600">${it.unit_type || 'REEL'}</td>
-                                                <td class="p-2.5 text-right font-bold">${q.toFixed(2)} MT</td>
-                                                <td class="p-2.5 text-right text-gray-700">$${p.toFixed(2)}</td>
-                                                <td class="p-2.5 text-right font-extrabold text-gray-900">$${(q * p).toFixed(2)}</td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                                <tfoot class="bg-gray-50 font-bold border-t border-gray-200 text-gray-900 text-xs">
-                                    <tr>
-                                        <td colspan="4" class="p-2.5 text-right uppercase">Total:</td>
-                                        <td class="p-2.5 text-right">${qty.toFixed(2)} MT</td>
-                                        <td></td>
-                                        <td class="p-2.5 text-right text-emerald-700 font-extrabold">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+                                `;
+                            }).join('')}
+                        </tbody>
+                        <tfoot class="bg-gray-50 font-bold border-t border-gray-200 text-gray-900 text-xs">
+                            <tr>
+                                <td colspan="4" class="p-3 text-right uppercase">Total:</td>
+                                <td class="p-3 text-right">${qty.toFixed(2)} MT</td>
+                                <td></td>
+                                <td class="p-3 text-right text-emerald-700 font-extrabold">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Shipment Milestones & Details -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="p-4 bg-white rounded-xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-gray-400">LC &amp; PI Details</span>
+                    <p><strong>LC Number:</strong> ${order.lc_no || 'Not updated'}</p>
+                    <p><strong>PI 1:</strong> ${order.pi1 || 'N/A'} ${order.bl1 ? `· <strong>BL 1:</strong> ${order.bl1}` : ''}</p>
+                    ${order.bl_count === 2 ? `<p><strong>PI 2:</strong> ${order.pi2 || 'N/A'} ${order.bl2 ? `· <strong>BL 2:</strong> ${order.bl2}` : ''}</p>` : ''}
+                </div>
+
+                <div class="p-4 bg-white rounded-xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-gray-400">Shipment Milestones</span>
+                    <p><strong>ETD (Shipment):</strong> ${order.shipment_date_1 || order.shipment_date || 'N/A'}</p>
+                    <p><strong>ETA (Arrival Date):</strong> <span class="font-bold text-blue-700">${order.etd_1 || order.etd || 'N/A'}</span></p>
+                    <p><strong>DHL Tracking:</strong> ${order.dhl_tracking_1 || order.dhl_tracking || 'N/A'}</p>
+                </div>
+
+                <div class="p-4 bg-white rounded-xl border border-gray-200 space-y-1.5 text-xs shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-gray-400">Commercial &amp; Cashback</span>
+                    <p><strong>Cashback Rate:</strong> ${order.cashback_rate ? `$${order.cashback_rate} / MT` : 'None'}</p>
+                    <p><strong>Total Cashback:</strong> <span class="font-bold text-pink-600">$${cashback.toFixed(2)}</span></p>
+                    ${order.tracking_link ? `
+                        <p class="truncate pt-1">
+                            <strong>Live Tracking:</strong> 
+                            <a href="${order.tracking_link}" target="_blank" class="text-blue-600 underline">Track Vessel Link</a>
+                        </p>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- Documents & File Downloads -->
+            <div>
+                <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700 mb-2 font-display">
+                    Order Documents &amp; Files (${files.length})
+                </h3>
+                ${files.length === 0 ? `
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 text-xs text-gray-400 italic">
+                        No files or document attachments uploaded for this order yet.
                     </div>
-
-                    <!-- Shipment, Tracking & LC Info -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <div class="p-3.5 bg-white rounded-xl border border-gray-200 space-y-1 text-xs">
-                            <span class="text-[10px] font-bold uppercase text-gray-400">LC &amp; PI Details</span>
-                            <p><strong>LC No:</strong> ${order.lc_no || 'Not updated'}</p>
-                            <p><strong>PI 1:</strong> ${order.pi1 || 'N/A'} ${order.bl1 ? `· <strong>BL 1:</strong> ${order.bl1}` : ''}</p>
-                            ${order.bl_count === 2 ? `<p><strong>PI 2:</strong> ${order.pi2 || 'N/A'} ${order.bl2 ? `· <strong>BL 2:</strong> ${order.bl2}` : ''}</p>` : ''}
-                        </div>
-
-                        <div class="p-3.5 bg-white rounded-xl border border-gray-200 space-y-1 text-xs">
-                            <span class="text-[10px] font-bold uppercase text-gray-400">Shipment Milestones</span>
-                            <p><strong>ETD:</strong> ${order.shipment_date_1 || order.shipment_date || 'N/A'}</p>
-                            <p><strong>ETA (Arrival):</strong> <span class="font-bold text-blue-700">${order.etd_1 || order.etd || 'N/A'}</span></p>
-                            <p><strong>DHL Express:</strong> ${order.dhl_tracking_1 || order.dhl_tracking || 'N/A'}</p>
-                        </div>
-
-                        <div class="p-3.5 bg-white rounded-xl border border-gray-200 space-y-1 text-xs">
-                            <span class="text-[10px] font-bold uppercase text-gray-400">Commercial &amp; Cashback</span>
-                            <p><strong>Cashback Rate:</strong> ${order.cashback_rate ? `$${order.cashback_rate} / MT` : 'None'}</p>
-                            <p><strong>Total Cashback:</strong> <span class="font-bold text-pink-600">$${cashback.toFixed(2)}</span></p>
-                            ${order.tracking_link ? `
-                                <p class="truncate">
-                                    <strong>Tracking:</strong> 
-                                    <a href="${order.tracking_link}" target="_blank" class="text-blue-600 underline">Track Vessel Link</a>
-                                </p>
-                            ` : ''}
-                        </div>
+                ` : `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                        ${files.map(file => `
+                            <a href="${file.webViewLink || file.url || '#'}" target="_blank" 
+                               class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-xs transition text-xs">
+                                <div class="flex items-center gap-2 truncate pr-2">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                                    <span class="truncate font-medium text-gray-800">${file.name || 'Order Attachment'}</span>
+                                </div>
+                                <span class="text-blue-600 font-semibold text-[11px] shrink-0 flex items-center gap-1">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                                </span>
+                            </a>
+                        `).join('')}
                     </div>
+                `}
+            </div>
 
-                    <!-- Files & Attachments Section -->
-                    <div>
-                        <h4 class="font-bold text-xs uppercase tracking-wider text-gray-700 mb-2 font-display">
-                            Order Documents &amp; Files (${files.length})
-                        </h4>
-                        ${files.length === 0 ? `
-                            <p class="text-xs text-gray-400 italic">No document files uploaded for this order yet.</p>
-                        ` : `
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                ${files.map(file => `
-                                    <a href="${file.webViewLink || file.url || '#'}" target="_blank" 
-                                       class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/30 transition text-xs">
-                                        <div class="flex items-center gap-2 truncate pr-2">
-                                            <i data-lucide="file-text" class="w-4 h-4 text-blue-600 shrink-0"></i>
-                                            <span class="truncate font-medium text-gray-800">${file.name || 'Order Attachment'}</span>
-                                        </div>
-                                        <span class="text-blue-600 font-semibold text-[11px] shrink-0 flex items-center gap-1">
-                                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
-                                        </span>
-                                    </a>
-                                `).join('')}
-                            </div>
-                        `}
-                    </div>
+            <!-- Notes & Remarks Section -->
+            <div class="pt-3 border-t border-gray-200">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700 font-display">
+                        Client Remarks / Notes (${notes.length})
+                    </h3>
+                    <button onclick="toggleNoteInput(${order.id})" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-semibold">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Add Note
+                    </button>
+                </div>
 
-                    <!-- Customer Notes Section -->
-                    <div class="pt-2 border-t border-gray-200">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="font-bold text-xs uppercase tracking-wider text-gray-700 font-display">
-                                Notes &amp; Messages (${notes.length})
-                            </h4>
-                            <button onclick="toggleNoteInput(${order.id})" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline font-semibold">
-                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Leave a Note
-                            </button>
-                        </div>
-
-                        <div id="noteBox-${order.id}" class="hidden mb-3 p-3 bg-white rounded-xl border border-gray-300 space-y-2">
-                            <textarea id="noteInput-${order.id}" rows="2" placeholder="Write a note, question, or remark for Roza International..." 
-                                      class="w-full text-xs p-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"></textarea>
-                            <div class="flex justify-end gap-2">
-                                <button onclick="toggleNoteInput(${order.id})" class="px-2.5 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded-lg">Cancel</button>
-                                <button onclick="submitCustomerNote(${order.id})" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save Note</button>
-                            </div>
-                        </div>
-
-                        ${notes.length === 0 ? `
-                            <p class="text-xs text-gray-400 italic">No notes added yet.</p>
-                        ` : `
-                            <div class="space-y-1.5 max-h-36 overflow-y-auto">
-                                ${notes.map(n => `
-                                    <div class="p-2.5 rounded-lg bg-white border border-gray-200 text-xs">
-                                        <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
-                                            <strong>${n.author || 'Client'}</strong>
-                                            <span>${n.date ? new Date(n.date).toLocaleString() : ''}</span>
-                                        </div>
-                                        <p class="text-gray-800">${n.text}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `}
-                    </div>
-
-                    <!-- Bottom Bar: Print Button -->
-                    <div class="pt-3 border-t border-gray-200 flex justify-end">
-                        <button onclick="printOrderInvoiceLegacy(${order.id})" class="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-2 transition">
-                            <i data-lucide="printer" class="w-4 h-4 text-brand-gold"></i>
-                            <span>Print Official Order Invoice (Original App Design)</span>
-                        </button>
+                <div id="noteBox-${order.id}" class="hidden mb-3 p-3 bg-white rounded-xl border border-gray-300 space-y-2">
+                    <textarea id="noteInput-${order.id}" rows="2" placeholder="Write any instruction, remark, or question for Roza International..." 
+                              class="w-full text-xs p-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"></textarea>
+                    <div class="flex justify-end gap-2">
+                        <button onclick="toggleNoteInput(${order.id})" class="px-2.5 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded-lg">Cancel</button>
+                        <button onclick="submitCustomerNote(${order.id})" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Save Note</button>
                     </div>
                 </div>
-            ` : ''}
+
+                ${notes.length === 0 ? `
+                    <p class="text-xs text-gray-400 italic">No notes added yet.</p>
+                ` : `
+                    <div class="space-y-1.5">
+                        ${notes.map(n => `
+                            <div class="p-3 rounded-xl bg-white border border-gray-200 text-xs">
+                                <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+                                    <strong class="text-gray-700">${n.author || 'Client'}</strong>
+                                    <span>${n.date ? new Date(n.date).toLocaleString() : ''}</span>
+                                </div>
+                                <p class="text-gray-800">${n.text}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+
+            <!-- Bottom Print Button -->
+            <div class="pt-4 border-t border-gray-200 flex justify-end">
+                <button onclick="printOrderInvoiceLegacy(${order.id})" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Print Order</span>
+                </button>
+            </div>
         </div>
     `;
+    if (window.lucide) lucide.createIcons();
 }
 
 function toggleNoteInput(orderId) {
@@ -755,7 +945,7 @@ async function submitCustomerNote(orderId) {
         });
 
         alert('Your note has been saved and shared with Roza International!');
-        renderOrdersList();
+        renderOrderDetailPage(order);
     } catch (err) {
         alert('Could not save note: ' + err.message);
     }
@@ -767,7 +957,7 @@ function printOrderInvoiceLegacy(orderId) {
     if (!order) return;
 
     const supplier = allSuppliers.find(s => s.id === order.supplier_id) || {};
-    const customer = currentCustomer;
+    const customer = allCustomers.find(c => c.id === order.customer_id) || currentCustomer;
 
     let items = [];
     const isDelivered = order.status === 'Delivered';
