@@ -627,20 +627,21 @@ function clearSearchFilters() {
     renderOrdersList();
 }
 
-// Clean, User-Friendly Order Card (Exact 1:1 Clean Information Hierarchy)
+// Clean, User-Friendly Order Card (Exact 1:1 Mac OrdersView Replica)
 function renderCleanOrderCard(order) {
     const status = order.status || 'Pending';
-    let statusPill = 'bg-amber-50 text-amber-700 border-amber-200';
-    if (status === 'Delivered') statusPill = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    else if (status === 'Shipped') statusPill = 'bg-sky-50 text-sky-700 border-sky-200';
-    else if (status === 'In Production' || status === 'Confirmed' || status === 'Completed') statusPill = 'bg-pink-50 text-pink-700 border-pink-200';
-    else if (status === 'Cancelled') statusPill = 'bg-rose-50 text-rose-700 border-rose-200';
+    let statusPill = 'bg-amber-100 text-amber-800 border-amber-300';
+    if (status === 'Delivered') statusPill = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+    else if (status === 'Shipped') statusPill = 'bg-sky-100 text-sky-800 border-sky-300';
+    else if (status === 'In Production' || status === 'Confirmed' || status === 'Completed') statusPill = 'bg-pink-100 text-pink-800 border-pink-300';
+    else if (status === 'Cancelled') statusPill = 'bg-rose-100 text-rose-800 border-rose-300';
 
     const qty = getOrderActualQty(order);
     const amount = getOrderTotalAmount(order);
+    const avgPrice = qty > 0 ? amount / qty : 0;
     const cashback = getOrderCashback(order);
     const fileCount = (order.files || []).length;
-    const piDisplay = order.pi1 ? (order.bl_count === 2 && order.pi2 ? `${order.pi1} / ${order.pi2}` : order.pi1) : (order.pi_no || 'N/A');
+    const piDisplay = order.pi1 ? (order.bl_count === 2 && order.pi2 ? `${order.pi1} / ${order.pi2}` : order.pi1) : (order.pi_no || '—');
 
     const supplier = allSuppliers.find(s => s.id === order.supplier_id);
     const supplierName = supplier?.name || 'International Supplier';
@@ -653,89 +654,188 @@ function renderCleanOrderCard(order) {
     const p1Status = getPortalPartStatus(order, 1);
     const p2Status = getPortalPartStatus(order, 2);
 
+    const getBoxTheme = (st) => {
+        if (st === 'Delivered') return 'bg-emerald-50/70 border-emerald-200/90 text-emerald-950';
+        if (st === 'Shipped') return 'bg-sky-50/70 border-sky-200/90 text-sky-950';
+        if (st === 'In Production' || st === 'Confirmed' || st === 'Completed') return 'bg-pink-50/70 border-pink-200/90 text-pink-950';
+        return 'bg-amber-50/70 border-amber-200/90 text-amber-950';
+    };
+
+    const getPillTheme = (st) => {
+        if (st === 'Delivered') return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        if (st === 'Shipped') return 'bg-sky-100 text-sky-800 border-sky-300';
+        if (st === 'In Production' || st === 'Confirmed' || st === 'Completed') return 'bg-pink-100 text-pink-800 border-pink-300';
+        return 'bg-amber-100 text-amber-800 border-amber-300';
+    };
+
+    // Header styling based on order status exactly like Mac
+    let headerBg = 'bg-amber-500/10 border-b border-amber-200/70';
+    let idBadge = 'bg-amber-100 text-amber-900 border border-amber-300';
+    if (status === 'Delivered') {
+        headerBg = 'bg-emerald-500/10 border-b border-emerald-200/70';
+        idBadge = 'bg-emerald-100 text-emerald-900 border border-emerald-300';
+    } else if (status === 'Shipped') {
+        headerBg = 'bg-sky-500/10 border-b border-sky-200/70';
+        idBadge = 'bg-sky-100 text-sky-900 border border-sky-300';
+    } else if (status === 'In Production' || status === 'Confirmed' || status === 'Completed') {
+        headerBg = 'bg-pink-500/10 border-b border-pink-200/70';
+        idBadge = 'bg-pink-100 text-pink-900 border border-pink-300';
+    }
+
     return `
         <div onclick="navigateToOrderDetail(${order.id})" 
-             class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-400 hover:shadow-xs transition cursor-pointer p-3.5 sm:p-4 select-none space-y-2.5">
+             class="group relative cursor-pointer rounded-xl border border-gray-200/90 bg-white hover:border-blue-400 transition-colors select-none">
             
-            <!-- Card Header: Order #, Status & Dates -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2">
+            <!-- Top Header Bar: Order ID, Date, LC, Split Tag & Actions (Exact Mac Replica) -->
+            <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-1.5 rounded-t-xl ${headerBg}">
                 <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-extrabold text-sm text-gray-900 font-display">Order #${order.id}</span>
+                    <span class="font-mono text-xs font-black px-2 py-0.5 rounded ${idBadge}">
+                        Order #${order.id}
+                    </span>
+                    <span class="text-xs font-medium text-gray-600 inline-flex items-center gap-1">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-500"></i>
+                        <span>${order.order_date || '—'}</span>
+                    </span>
+                    ${order.lc_no ? `
+                        <span class="font-mono text-xs text-gray-700 bg-white/80 border border-gray-200 px-2 py-0.5 rounded">
+                            LC: <span class="font-bold text-gray-900">${order.lc_no}</span>
+                        </span>
+                    ` : ''}
                     ${isTwoParts ? `
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border border-amber-300 bg-amber-50 text-amber-800">
-                            ⚡ Split: Part 1 (${p1Status}) · Part 2 (${p2Status})
+                        <span class="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                            ⚡ Split: P1 (${p1Status}) · P2 (${p2Status})
                         </span>
                     ` : `
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${statusPill}">
+                        <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold border ${statusPill}">
+                            <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
                             ${status}
                         </span>
                     `}
                     ${isDifferentFactory ? `
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
                             Factory: ${factoryName}
                         </span>
                     ` : ''}
                 </div>
-                <div class="text-xs text-gray-500 flex items-center gap-2">
-                    <span>Date: <strong class="text-gray-700 font-medium">${order.order_date || 'N/A'}</strong></span>
-                    ${fileCount > 0 ? `
-                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                            <i data-lucide="paperclip" class="w-3 h-3"></i> ${fileCount} Files
-                        </span>
-                    ` : ''}
+
+                <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
+                    <button onclick="navigateToOrderDetail(${order.id})" class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md border border-gray-200 bg-gray-50 hover:bg-blue-50 hover:text-blue-700 transition">
+                        <i data-lucide="eye" class="w-3.5 h-3.5 text-blue-600"></i>
+                        <span>View Details</span>
+                    </button>
+                    <button onclick="printOrderInvoiceLegacy(${order.id})" class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 transition">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 text-gray-600"></i>
+                        <span>Print</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Card Body: Clean Three Columns -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
-                <!-- Col 1: Parties & References -->
-                <div class="space-y-0.5">
-                    <p class="text-gray-500">Supplier: <strong class="text-gray-900 font-medium">${supplierName}</strong></p>
-                    <p class="text-gray-500">LC Number: <strong class="text-gray-900 font-mono">${order.lc_no || 'Pending'}</strong></p>
-                    <p class="text-gray-500">PI Number: <strong class="text-gray-900 font-mono">${piDisplay}</strong></p>
-                </div>
-
-                <!-- Col 2: Shipment Details (ETD / ETA) -->
-                <div class="space-y-1 sm:border-l sm:border-gray-100 sm:pl-3">
-                    ${isTwoParts ? `
-                        <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-0.5 text-[11px]">
-                            <div class="flex items-center justify-between font-bold text-gray-900">
-                                <span>Part 1 (${parseFloat(order.part1_qty) || 0} MT)</span>
-                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p1Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p1Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : p1Status === 'In Production' || p1Status === 'Confirmed' ? 'bg-pink-100 text-pink-800' : 'bg-amber-100 text-amber-800'}">${p1Status}</span>
-                            </div>
-                            <p class="text-gray-500">ETD: <strong class="text-gray-800">${order.shipment_date_1 || 'N/A'}</strong> · ETA: <strong class="text-blue-700">${order.etd_1 || 'N/A'}</strong></p>
-                            ${order.bl1 ? `<p class="text-gray-500">BL: <strong class="text-gray-700 font-mono">${order.bl1}</strong></p>` : ''}
+            <!-- Main Body: 3-column Layout (Col 1: 3 cols, Col 2: 7 cols roomy, Col 3: 2 cols financials) -->
+            <div class="p-3">
+                <div class="grid grid-cols-1 gap-3 md:grid-cols-12 md:items-center">
+                    
+                    <!-- Col 1: Customer & Supplier -->
+                    <div class="md:col-span-3 min-w-0">
+                        <p class="font-display text-sm font-bold text-gray-950 truncate leading-snug">
+                            ${factoryName}
+                        </p>
+                        <div class="flex items-center gap-1.5 text-xs text-gray-500 pt-0.5">
+                            <span class="text-gray-400">via</span>
+                            <span class="font-medium text-gray-700 truncate">${supplierName}</span>
+                            ${fileCount > 0 ? `
+                                <span class="inline-flex items-center gap-0.5 text-[11px] font-semibold text-blue-600 shrink-0">
+                                    <i data-lucide="paperclip" class="w-3 h-3"></i> ${fileCount}
+                                </span>
+                            ` : ''}
                         </div>
-                        <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-0.5 text-[11px] mt-1">
-                            <div class="flex items-center justify-between font-bold text-gray-900">
-                                <span>Part 2 (${parseFloat(order.part2_qty) || 0} MT)</span>
-                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p2Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p2Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : p2Status === 'In Production' || p2Status === 'Confirmed' ? 'bg-pink-100 text-pink-800' : 'bg-amber-100 text-amber-800'}">${p2Status}</span>
-                            </div>
-                            <p class="text-gray-500">ETD: <strong class="text-gray-800">${order.shipment_date_2 || 'N/A'}</strong> · ETA: <strong class="text-blue-700">${order.etd_2 || 'N/A'}</strong></p>
-                            ${order.bl2 ? `<p class="text-gray-500">BL: <strong class="text-gray-700 font-mono">${order.bl2}</strong></p>` : ''}
-                        </div>
-                    ` : `
-                        <p class="text-gray-500">ETD (Shipment): <strong class="text-gray-900">${order.shipment_date_1 || order.shipment_date || 'N/A'}</strong></p>
-                        <p class="text-gray-500">ETA (Arrival): <strong class="text-blue-700 font-bold">${order.etd_1 || order.etd || 'N/A'}</strong></p>
-                        ${order.bl1 ? `<p class="text-gray-500">BL No: <strong class="text-gray-800 font-mono">${order.bl1}</strong></p>` : ''}
-                    `}
-                </div>
+                    </div>
 
-                <!-- Col 3: Quantity & Financials -->
-                <div class="space-y-0.5 sm:border-l sm:border-gray-100 sm:pl-3 flex flex-col justify-center sm:items-end text-left sm:text-right">
-                    <div>
-                        <span class="text-xs text-gray-500">Total Quantity:</span> 
-                        <strong class="text-xs sm:text-sm font-extrabold text-gray-900 ml-1">${qty.toFixed(2)} MT</strong>
+                    <!-- Col 2: Shipment Details (7 cols - Roomy for Part 1 & Part 2) -->
+                    <div class="md:col-span-7 md:border-l md:border-gray-100 md:pl-3">
+                        ${isTwoParts ? `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                <!-- Part 1 Box -->
+                                <div class="p-2 rounded-lg border text-[11.5px] leading-snug space-y-1 ${getBoxTheme(p1Status)}">
+                                    <div class="flex items-center gap-1.5 border-b border-black/5 pb-1">
+                                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-700">Part 1</span>
+                                        <span class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.2 text-[9px] font-bold border ${getPillTheme(p1Status)}">
+                                            ${p1Status}
+                                        </span>
+                                        <span class="font-mono font-black text-gray-900 ml-auto">${(parseFloat(order.part1_qty) || 0).toFixed(2)} MT</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[11px] text-gray-800">
+                                        <span><span class="text-gray-400 text-[10px]">PI:</span> <span class="font-mono font-bold">${order.pi1 || '—'}</span></span>
+                                        <span><span class="text-gray-400 text-[10px]">BL:</span> <span class="font-mono font-bold">${order.bl1 || '—'}</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[11px] text-gray-600">
+                                        ${order.shipment_date_1 ? `<span><span class="text-gray-400 text-[10px]">ETD:</span> <span class="font-semibold">${order.shipment_date_1}</span></span>` : ''}
+                                        ${order.etd_1 ? `<span><span class="text-gray-400 text-[10px]">ETA:</span> <span class="font-bold text-blue-700">${order.etd_1}</span></span>` : ''}
+                                    </div>
+                                </div>
+
+                                <!-- Part 2 Box -->
+                                <div class="p-2 rounded-lg border text-[11.5px] leading-snug space-y-1 ${getBoxTheme(p2Status)}">
+                                    <div class="flex items-center gap-1.5 border-b border-black/5 pb-1">
+                                        <span class="text-[10px] font-black uppercase tracking-wider text-gray-700">Part 2</span>
+                                        <span class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.2 text-[9px] font-bold border ${getPillTheme(p2Status)}">
+                                            ${p2Status}
+                                        </span>
+                                        <span class="font-mono font-black text-gray-900 ml-auto">${(parseFloat(order.part2_qty) || 0).toFixed(2)} MT</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[11px] text-gray-800">
+                                        <span><span class="text-gray-400 text-[10px]">PI:</span> <span class="font-mono font-bold">${order.pi2 || '—'}</span></span>
+                                        <span><span class="text-gray-400 text-[10px]">BL:</span> <span class="font-mono font-bold">${order.bl2 || '—'}</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[11px] text-gray-600">
+                                        ${order.shipment_date_2 ? `<span><span class="text-gray-400 text-[10px]">ETD:</span> <span class="font-semibold">${order.shipment_date_2}</span></span>` : ''}
+                                        ${order.etd_2 ? `<span><span class="text-gray-400 text-[10px]">ETA:</span> <span class="font-bold text-blue-700">${order.etd_2}</span></span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="text-xs space-y-1">
+                                <div class="flex items-center gap-4 text-[11.5px]">
+                                    <span><span class="text-gray-400 text-[10px]">PI:</span> <span class="font-mono font-bold text-gray-900">${order.pi1 || order.pi_no || '—'}</span></span>
+                                    <span><span class="text-gray-400 text-[10px]">BL:</span> <span class="font-mono font-bold text-gray-800">${order.bl1 || '—'}</span></span>
+                                </div>
+                                <div class="flex items-center gap-4 text-[11.5px]">
+                                    ${order.shipment_date_1 || order.shipment_date ? `
+                                        <span class="text-gray-600">
+                                            <span class="text-gray-400 text-[10px]">ETD:</span> <span class="font-semibold text-gray-800">${order.shipment_date_1 || order.shipment_date}</span>
+                                        </span>
+                                    ` : ''}
+                                    ${order.etd_1 || order.etd ? `
+                                        <span class="text-gray-600">
+                                            <span class="text-gray-400 text-[10px]">ETA:</span> <span class="font-semibold text-blue-700 font-bold">${order.etd_1 || order.etd}</span>
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `}
                     </div>
-                    <div>
-                        <span class="text-xs text-gray-500">Total Value:</span> 
-                        <strong class="text-xs sm:text-sm font-extrabold text-emerald-700 ml-1">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+
+                    <!-- Col 3: Financials & Totals (2 cols - compact right aligned) -->
+                    <div class="md:col-span-2 md:border-l md:border-gray-100 md:pl-2.5 flex flex-col justify-center text-left md:text-right">
+                        <div>
+                            <span class="font-mono text-xs font-black text-gray-950 block leading-tight">
+                                ${qty.toFixed(2)} MT
+                            </span>
+                            <span class="font-mono text-xs font-bold text-emerald-700 block leading-tight mt-0.5">
+                                $${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                        ${cashback > 0 ? `
+                            <p class="font-mono text-[9.5px] font-bold text-pink-700 leading-none mt-1">
+                                Cashback: $${cashback.toFixed(2)}
+                            </p>
+                        ` : ''}
                     </div>
-                    ${cashback > 0 ? `
-                        <p class="text-[10px] text-pink-700 font-bold">Cashback: $${cashback.toFixed(2)}</p>
-                    ` : ''}
+
                 </div>
             </div>
+        </div>
+    `;
+}
 
             <!-- Card Bottom Bar: Quick Action Buttons -->
             <div class="pt-2 border-t border-gray-100 flex items-center justify-between" onclick="event.stopPropagation()">
