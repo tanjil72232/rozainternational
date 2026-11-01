@@ -633,7 +633,7 @@ function renderCleanOrderCard(order) {
     let statusPill = 'bg-amber-50 text-amber-700 border-amber-200';
     if (status === 'Delivered') statusPill = 'bg-emerald-50 text-emerald-700 border-emerald-200';
     else if (status === 'Shipped') statusPill = 'bg-sky-50 text-sky-700 border-sky-200';
-    else if (status === 'In Production' || status === 'Confirmed') statusPill = 'bg-teal-50 text-teal-700 border-teal-200';
+    else if (status === 'In Production' || status === 'Confirmed' || status === 'Completed') statusPill = 'bg-pink-50 text-pink-700 border-pink-200';
     else if (status === 'Cancelled') statusPill = 'bg-rose-50 text-rose-700 border-rose-200';
 
     const qty = getOrderActualQty(order);
@@ -701,7 +701,7 @@ function renderCleanOrderCard(order) {
                         <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-0.5 text-[11px]">
                             <div class="flex items-center justify-between font-bold text-gray-900">
                                 <span>Part 1 (${parseFloat(order.part1_qty) || 0} MT)</span>
-                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p1Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p1Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">${p1Status}</span>
+                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p1Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p1Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : p1Status === 'In Production' || p1Status === 'Confirmed' ? 'bg-pink-100 text-pink-800' : 'bg-amber-100 text-amber-800'}">${p1Status}</span>
                             </div>
                             <p class="text-gray-500">ETD: <strong class="text-gray-800">${order.shipment_date_1 || 'N/A'}</strong> · ETA: <strong class="text-blue-700">${order.etd_1 || 'N/A'}</strong></p>
                             ${order.bl1 ? `<p class="text-gray-500">BL: <strong class="text-gray-700 font-mono">${order.bl1}</strong></p>` : ''}
@@ -709,7 +709,7 @@ function renderCleanOrderCard(order) {
                         <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-0.5 text-[11px] mt-1">
                             <div class="flex items-center justify-between font-bold text-gray-900">
                                 <span>Part 2 (${parseFloat(order.part2_qty) || 0} MT)</span>
-                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p2Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p2Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">${p2Status}</span>
+                                <span class="text-[9px] uppercase px-1.5 py-0.2 rounded ${p2Status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : p2Status === 'Shipped' ? 'bg-sky-100 text-sky-800' : p2Status === 'In Production' || p2Status === 'Confirmed' ? 'bg-pink-100 text-pink-800' : 'bg-amber-100 text-amber-800'}">${p2Status}</span>
                             </div>
                             <p class="text-gray-500">ETD: <strong class="text-gray-800">${order.shipment_date_2 || 'N/A'}</strong> · ETA: <strong class="text-blue-700">${order.etd_2 || 'N/A'}</strong></p>
                             ${order.bl2 ? `<p class="text-gray-500">BL: <strong class="text-gray-700 font-mono">${order.bl2}</strong></p>` : ''}
@@ -761,7 +761,7 @@ function renderOrderDetailPage(order) {
     let statusPill = 'bg-amber-50 text-amber-700 border-amber-200';
     if (status === 'Delivered') statusPill = 'bg-emerald-50 text-emerald-700 border-emerald-200';
     else if (status === 'Shipped') statusPill = 'bg-sky-50 text-sky-700 border-sky-200';
-    else if (status === 'In Production' || status === 'Confirmed') statusPill = 'bg-teal-50 text-teal-700 border-teal-200';
+    else if (status === 'In Production' || status === 'Confirmed' || status === 'Completed') statusPill = 'bg-pink-50 text-pink-700 border-pink-200';
     else if (status === 'Cancelled') statusPill = 'bg-rose-50 text-rose-700 border-rose-200';
 
     const qty = getOrderActualQty(order);
