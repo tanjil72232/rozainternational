@@ -81,10 +81,10 @@
         </div>
     </footer>
 
-    <!-- Customer Portal Script -->
-    <script src="../portal.js?v=2.0.0"></script>
+    <!-- Customer Portal Script (Cache Busted) -->
+    <script src="../portal.js?v=20261101_v3"></script>
     <script>
-        // Auto-initialize portal on dedicated page load
+        // Clear old cached session on version upgrade if needed, then initialize
         document.addEventListener('DOMContentLoaded', () => {
             const saved = sessionStorage.getItem('roza_portal_cust');
             if (saved) {
